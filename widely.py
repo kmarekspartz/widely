@@ -9,10 +9,13 @@ Usage:
   widely sites
   widely sites:info [--site <SITENAME>]
   widely sites:create [<SITENAME>]
-  widely sites:rename <NEWNAME> [--site <SITENAME>]
+  widely sites:copy <SITENAME>
+  widely sites:rename <SITENAME>
   widely domains [--site <SITENAME>]
-  widely open
   widely local [-p <PORT>|--port <PORT>]
+  widely push
+  widely pull --site <SITENAME>
+  widely open [--site <SITENAME>]
   widely status
   widely logs
   widely (help|-h|--help) [<TOPIC>]
@@ -41,16 +44,6 @@ def sizeof_fmt(num):
             return "%3.1f %s" % (num, x)
         num /= 1024.0
     return "%3.1f %s" % (num, 'TB')
-
-
-def _help(arguments):
-    topic = arguments['<TOPIC>']
-    help_messages = {}
-    if topic and topic in help_messages:
-        print('help about ' + topic)
-        print(help_messages[topic])
-    else:
-        print(__doc__.strip("\n"))
 
 
 def version(arguments):
@@ -170,6 +163,19 @@ def get_current_or_specified_bucket(arguments):
         print(' !\tRun this command from a site folder or specify which site to use with --site SITENAME.')
         sys.exit()
 
+def get_current_or_specified_bucket(arguments):
+    sitename = arguments['<SITENAME>']
+    if sitename:
+        return sitename
+    else:
+        try:
+            with open('.widely', 'r') as f:
+                return f.read()
+        except IOError:
+            print(' !\tNo site specified.')
+            print(' !\tRun this command from a site folder or specify which site to use with --site SITENAME.')
+            sys.exit()
+
 
 def websites_from_buckets(buckets):
     from boto.exception import S3ResponseError
@@ -209,44 +215,7 @@ def sites_info(arguments):
     print('Size:    {0}'.format(sizeof_fmt(bucket_size(bucket))))
     print('Web URL: {0}'.format(bucket.get_website_endpoint()))
 
-
-def sites_create(arguments):
-    """
-    Creates a new site for the specified or current site, or a randomly assigned site name.
-    """
-    f = open('.widely', 'w')
-
-
-def sites_rename(arguments):
-    """
-    Renames the specified or current site to the new name.
-    """
-    # Create a new bucket with the new name
-    # Copy the configuration over
-    # Change the .widely
-    # Verify the deletion of the old sitename
-    pass
-
-
-def domains(arguments):
-    """
-    Lists domains for the specified or current site.
-    """
-    bucket = get_current_or_specified_bucket(arguments)
-    print('=== {0} Domain Names'.format(bucket.name))
-    print(bucket.get_website_endpoint())
-
-
-def logs(arguments):
-    """
-    Shows access and status logs for the specified or current site.
-    """
-    # (Logs for sitename)
-    # Not found
-    pass
-
-
-def status(arguments):
+    def status(arguments):
     """
     Shows the S3 system status.
     """
@@ -287,26 +256,158 @@ def local(arguments):
             sys.exit()
     else:
         port = 8000
+
     import SimpleHTTPServer
     import SocketServer
-
     Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
     httpd = SocketServer.TCPServer(("", port), Handler)
-    print("serving at 0.0.0.0:" + str(port))
+    url = 'http://0.0.0.0:' + str(port)
+    print("serving at " + url)
     import webbrowser
-    webbrowser.open_new_tab('http://0.0.0.0:' + str(port))
+    webbrowser.open_new_tab(url)
     httpd.serve_forever()
-
-
 
 
 def _open(arguments):
     """
     Loads the running specified or current site in the webbrowser.
     """
+    bucket = get_current_or_specified_bucket(arguments)
+    url = 'http://' + bucket.get_website_endpoint()
+    print('Opening {0}...'.format(bucket.name)), # This line may not
+                                                 # be Python 3
+                                                 # compatible.
     import webbrowser
-    url = 'someurl'
     webbrowser.open_new_tab(url)
+    print('done')
+
+def domains(arguments):
+    """
+    Lists domains for the specified or current site.
+    """
+    bucket = get_current_or_specified_bucket(arguments)
+    print('=== {0} Domain Names'.format(bucket.name))
+    print(bucket.get_website_endpoint())
+
+
+
+
+
+###########
+
+
+def sites_create(arguments):
+    """
+    Creates a new site for the specified or current site, or a randomly assigned site name.
+    """
+    ## make sure there is no .widely file locally
+    import os.path
+    if os.path.exists('.widely'):
+        print('This directory is already a widely site.')
+        sys.exit()
+    sitename = arguments['<SITENAME>']
+    # make sure there is no bucket with the name
+    try:
+        bucket = conn.get_bucket(sitename)
+    except S3ResponseError:
+        bucket = conn.create_bucket(sitename)
+        with open('.widely', 'w') as f:
+            f.write(sitename)
+        return push(arguments)
+    print('A site with that name already exists.')
+    sys.exit()
+
+
+def sites_copy(arguments):
+    """
+    Copies the current site to the new name.
+    """
+    sitename = arguments['<SITENAME>']
+    from boto.s3.connection import S3Connection
+    from boto.exception import S3ResponseError
+    conn = S3Connection()
+    # make sure there is no bucket with the name
+    try:
+        bucket = conn.get_bucket(sitename)
+    except S3ResponseError:
+        ## Create a new bucket with the new name
+        ## Copy the keys over
+        ## Copy the configuration over
+    print('A site with that name already exists')
+    sys.exit()
+
+
+def sites_rename(arguments):
+    """
+    Renames the current site to the new name.
+    """
+    sites_copy(arguments)
+    sitename = arguments['<SITENAME>']
+
+    ## Verify the deletion of the old sitename
+    ## Update the .widely to the new sitename
+
+    with open('.widely', 'w') as f:
+        f.write(sitename)
+
+
+def logs(arguments):
+    """
+    Shows access and status logs for the specified or current site.
+    """
+    bucket = get_current_or_specified_bucket()
+    print('Logs for {0}'.format(bucket.name))
+    ## Get the logs
+    ## Reformat them (in chronological order)
+    ## Print them
+
+def generate_changesets(bucket):
+    ## Get all keys
+    ## Get their hashes
+    ## Make a list of changes (Insert, Delete, Rename, Modifications)
+    ## Hash the files in the current directory
+    ## Compare hashes
+    changes = {"local":[],
+               "remote":[]}
+    return changes
+
+
+def show_changeset(changeset):
+    print('This would make the following changes:')
+
+
+def run_changeset(changeset):
+    pass
+
+
+def push(arguments):
+    bucket = get_current_or_specified_bucket(arguments)
+    changeset = generate_changesets(bucket)
+    show_changeset(changeset['remote'])
+    ## Ask for approval
+    run_changeset(changesets['remote'])
+
+
+def pull(arguments):
+    sitename = get_current_or_specified_sitename(arguments)
+    bucket = get_current_or_specified_bucket(arguments)
+    changeset = generate_changesets(bucket)
+    show_changeset(changeset['local'])
+    ## Ask for approval
+    run_changeset(changesets['local'])
+    # Set the .widely file (or create it) with the bucket name
+    with open('.widely', 'w') as f:
+        f.write(sitename)
+
+
+def _help(arguments):
+    topic = arguments['<TOPIC>']
+    help_messages = {}
+    if topic and topic in help_messages:
+        print('help about ' + topic)
+        print(help_messages[topic])
+    else:
+        print(__doc__.strip("\n"))
 
 
 def main():
@@ -342,6 +443,10 @@ def main():
         sites_rename(arguments)
     elif arguments['status']:
         status(arguments)
+    elif arguments['push']:
+        push(arguments)
+    elif arguments['pull']:
+        pull(arguments)
     else:
         print('We did not recognize your specified arguments.')
         print(arguments)
