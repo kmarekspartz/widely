@@ -8,7 +8,7 @@ Usage:
   widely auth:whoami
   widely sites
   widely sites:info [--site <SITENAME>]
-  widely sites:create [<SITENAME>]
+  widely sites:create <SITENAME>
   widely sites:copy <SITENAME>
   widely sites:rename <SITENAME>
   widely domains [--site <SITENAME>]
@@ -149,21 +149,15 @@ def get_current_bucket():
 
 
 def get_current_or_specified_bucket(arguments):
+    sitename = get_current_or_specified_sitename(arguments)
     try:
-        sitename = arguments['<SITENAME>']
-        if sitename:
-            return get_specified_bucket(sitename)
-        else:
-            return get_current_bucket()
+        return get_specified_bucket(sitename)
     except NoSuchBucket:
         print(' !\tSite not found')
         sys.exit()
-    except NoWidelyDotfile:
-        print(' !\tNo site specified.')
-        print(' !\tRun this command from a site folder or specify which site to use with --site SITENAME.')
-        sys.exit()
 
-def get_current_or_specified_bucket(arguments):
+
+def get_current_or_specified_sitename(arguments):
     sitename = arguments['<SITENAME>']
     if sitename:
         return sitename
@@ -215,7 +209,7 @@ def sites_info(arguments):
     print('Size:    {0}'.format(sizeof_fmt(bucket_size(bucket))))
     print('Web URL: {0}'.format(bucket.get_website_endpoint()))
 
-    def status(arguments):
+def status(arguments):
     """
     Shows the S3 system status.
     """
@@ -293,62 +287,154 @@ def domains(arguments):
 
 
 
-###########
 
 
 def sites_create(arguments):
     """
     Creates a new site for the specified or current site, or a randomly assigned site name.
     """
-    ## make sure there is no .widely file locally
+    # make sure there is no .widely file locally
     import os.path
     if os.path.exists('.widely'):
         print('This directory is already a widely site.')
         sys.exit()
     sitename = arguments['<SITENAME>']
+    from boto.s3.connection import S3Connection
+    from boto.exception import S3ResponseError, S3CreateError
+    conn = S3Connection()
     # make sure there is no bucket with the name
     try:
-        bucket = conn.get_bucket(sitename)
-    except S3ResponseError:
         bucket = conn.create_bucket(sitename)
+        assert bucket.get_all_keys() == []
+        # Set bucket configuration
+        error_key = raw_input('Please enter the key of your 404 page (default: 404.html): ')
+        if not error_key:
+            error_key = '404.html'
+        bucket.configure_website(
+            suffix='index.html',
+            error_key=error_key
+        )
+        # Configure policy
+        ## Ask user first?
+        bucket.set_acl('public-read')
+        ## Configure logging
         with open('.widely', 'w') as f:
             f.write(sitename)
         return push(arguments)
-    print('A site with that name already exists.')
-    sys.exit()
+    except S3CreateError:
+        print('A site with that name already exists.')
+        sys.exit()
+    except AssertionError:
+        print('This bucket already has keys.')
+        sys.exit()
 
 
 def sites_copy(arguments):
     """
     Copies the current site to the new name.
     """
-    sitename = arguments['<SITENAME>']
+    current_bucket = get_current_bucket()
+    new_bucket_name = arguments['<SITENAME>']
     from boto.s3.connection import S3Connection
-    from boto.exception import S3ResponseError
+    from boto.exception import S3CreateError
     conn = S3Connection()
-    # make sure there is no bucket with the name
     try:
-        bucket = conn.get_bucket(sitename)
-    except S3ResponseError:
-        ## Create a new bucket with the new name
-        ## Copy the keys over
-        ## Copy the configuration over
-    print('A site with that name already exists')
-    sys.exit()
-
+        # make sure there is no bucket with the name
+        new_bucket = conn.create_bucket(new_bucket_name)
+        # Make sure the new bucket is empty
+        assert new_bucket.get_all_keys() == []
+        error_key = raw_input('Please enter the key of your 404 page (default: 404.html): ')
+        if not error_key:
+            error_key = '404.html'
+        bucket.configure_website(
+            suffix='index.html',
+            error_key=error_key
+        )
+        # Configure policy
+        ## Ask user first?
+        bucket.set_acl('public-read')
+        # Copy the keys over
+        for key in current_bucket.get_all_keys():
+            new_bucket.copy_key(key.name, current_bucket, key.name)
+    except S3CreateError:
+        print('A site with that name already exists')
+        sys.exit()
+    except AssertionError:
+        print('This bucket already has keys.')
+        sys.exit()
 
 def sites_rename(arguments):
     """
     Renames the current site to the new name.
     """
     sites_copy(arguments)
-    sitename = arguments['<SITENAME>']
+    new_sitename = arguments['<SITENAME>']
+    b = get_current_bucket()
+    print('{0} copied to {1}'.format(b.name, new_sitename))
 
-    ## Verify the deletion of the old sitename
-    ## Update the .widely to the new sitename
+    decision = None
+    while True:
+        # Verify the deletion of the old sitename
+        response = raw_input('Would you like to delete {0}? '.format(b.name))
+        if response in set(['y', 'Y', 'Yes', 'yes']):
+            decision = True
+            break
+        elif response in set(['n', 'N', 'No', 'no'])
+            decision = False
+            break
+        print('Please enter y/n.')
 
-    with open('.widely', 'w') as f:
-        f.write(sitename)
+    if decision:
+        conn.delete_bucket(b.name)
+        # Update the .widely to the new sitename
+        with open('.widely', 'w') as f:
+            f.write(sitename)
+
+
+def push(arguments):
+    bucket = get_current_or_specified_bucket(arguments)
+    changesets = generate_changesets(bucket)
+    show_changeset(changesets['remote'])
+    # Ask for approval
+    decision = None
+    while True:
+        # Verify the deletion of the old sitename
+        response = raw_input('Would you like to make the changes? '.format(b.name))
+        if response in set(['y', 'Y', 'Yes', 'yes']):
+            decision = True
+            break
+        elif response in set(['n', 'N', 'No', 'no'])
+            decision = False
+            break
+        print('Please enter y/n.')
+
+    if decision:
+        run_changeset(changesets['remote'])
+
+
+def pull(arguments):
+    sitename = get_current_or_specified_sitename(arguments)
+    bucket = get_current_or_specified_bucket(arguments)
+    changeset = generate_changesets(bucket)
+    show_changeset(changeset['local'])
+    # Ask for approval
+    decision = None
+    while True:
+        # Verify the deletion of the old sitename
+        response = raw_input('Would you like to make the changes? '.format(b.name))
+        if response in set(['y', 'Y', 'Yes', 'yes']):
+            decision = True
+            break
+        elif response in set(['n', 'N', 'No', 'no'])
+            decision = False
+            break
+        print('Please enter y/n.')
+
+    if decision:
+        run_changeset(changesets['local'])
+        # Set the .widely file (or create it) with the bucket name
+        with open('.widely', 'w') as f:
+            f.write(sitename)
 
 
 def logs(arguments):
@@ -361,15 +447,70 @@ def logs(arguments):
     ## Reformat them (in chronological order)
     ## Print them
 
+class Change(object):
+    Insert = 'Insert'
+    Delete = 'Delete'
+    Rename = 'Rename'
+    Modify = 'Modify'
+
 def generate_changesets(bucket):
-    ## Get all keys
-    ## Get their hashes
-    ## Make a list of changes (Insert, Delete, Rename, Modifications)
-    ## Hash the files in the current directory
-    ## Compare hashes
-    changes = {"local":[],
-               "remote":[]}
-    return changes
+    """
+    ??? Use difflib?
+    !!! this uses md5 for hashing, since that is what boto uses
+    """
+    import hashlib
+    def get_keys_from_hash(_dict, _hash):
+        keys = set()
+        for key, _hash_ in _dict:
+            if _hash == _hash_:
+                keys.append(key)
+        return keys
+
+    def get_local_keys():
+        import os
+        for root, _, files in os.walk(os.curdir):
+            for _file in files:
+                yield os.path.join(root, _file)[2:]
+    def get_local_key_hash(key):
+        with open(key, 'r') as f:
+            return hashlib.md5(f.read()).digest()
+
+    def get_remote_changeset(remote_hashes, local_hashes):
+        for remote_key, remote_hash in remote_hashes:
+            if remote_key in local_hashes:
+                # The key exists in both places
+                if local_hashes[remote_key] != remote_hashes[remote_key]:
+                    # The file is modified
+                    yield remote_key, Change.Modify, remote_key
+            else:
+                # The local file does not exist
+                if remote_hash in local_hashes.values()
+                    # The file needs to be moved
+                    local_keys = get_keys_from_hash(local_hashes, remote_hash)
+                    ## This is wrong
+                    yield local_keys, Change.Rename, remote_key
+
+                else:
+                    # The file is deleted
+                    yield None, Change.Delete, remote_key
+        for local_key, local_hash in local_hashes:
+            if local_key not in remote_hashes:
+                ## But what about the set of files from local_keys above?
+                yield local_key, Change.Insert, None
+
+    # Get keys
+    remote_keys = bucket.get_all_keys()
+    local_keys = get_local_keys()
+    # Get their hashes
+    remote_hashes = {key.name: key.etag for key in remote_keys}
+    local_hashes = {key: get_local_key_hash(key) for key in local_keys}
+    # Make changesets
+    remote_changeset = get_remote_changeset()
+    local_changeset = get_local_changeset()
+
+    changesets = {"local": local_changeset,
+                  "remote": remote_changeset}
+    return changesets
 
 
 def show_changeset(changeset):
@@ -377,27 +518,15 @@ def show_changeset(changeset):
 
 
 def run_changeset(changeset):
-    pass
-
-
-def push(arguments):
-    bucket = get_current_or_specified_bucket(arguments)
-    changeset = generate_changesets(bucket)
-    show_changeset(changeset['remote'])
-    ## Ask for approval
-    run_changeset(changesets['remote'])
-
-
-def pull(arguments):
-    sitename = get_current_or_specified_sitename(arguments)
-    bucket = get_current_or_specified_bucket(arguments)
-    changeset = generate_changesets(bucket)
-    show_changeset(changeset['local'])
-    ## Ask for approval
-    run_changeset(changesets['local'])
-    # Set the .widely file (or create it) with the bucket name
-    with open('.widely', 'w') as f:
-        f.write(sitename)
+    for local_key, change, remote_key in changeset:
+        if change == Change.Insert:
+            pass
+        elif change == Change.Delete:
+            pass
+        elif change == Change.Modify:
+            pass
+        elif change == Change.Rename:
+            pass
 
 
 def _help(arguments):
