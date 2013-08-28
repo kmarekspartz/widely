@@ -19,5 +19,5 @@ setup(
     },
     test_suite='nose.collector',
     classifiers=["Private :: Do Not Upload"],  ## To be added later.
-    license='ISC'  ## To be added later.
+    license='MIT'
 )
