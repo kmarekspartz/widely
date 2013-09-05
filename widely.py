@@ -142,7 +142,7 @@ def get_specified_bucket(sitename):
 
 def get_current_bucket():
     try:
-        sitename = open('.widely', 'r').read()
+        sitename = open('.widely', 'r').read().split()[0]
     except IOError:
         raise NoWidelyDotfile
     return get_specified_bucket(sitename)
@@ -283,12 +283,6 @@ def domains(arguments):
     print('=== {0} Domain Names'.format(bucket.name))
     print(bucket.get_website_endpoint())
 
-
-
-
-
-
-
 def sites_create(arguments):
     """
     Creates a new site for the specified or current site, or a randomly assigned site name.
@@ -300,9 +294,8 @@ def sites_create(arguments):
         sys.exit()
     sitename = arguments['<SITENAME>']
     from boto.s3.connection import S3Connection
-    from boto.exception import S3ResponseError, S3CreateError
+    from boto.exception import S3CreateError
     conn = S3Connection()
-    # make sure there is no bucket with the name
     try:
         bucket = conn.create_bucket(sitename)
         assert bucket.get_all_keys() == []
@@ -346,13 +339,13 @@ def sites_copy(arguments):
         error_key = raw_input('Please enter the key of your 404 page (default: 404.html): ')
         if not error_key:
             error_key = '404.html'
-        bucket.configure_website(
+        new_bucket.configure_website(
             suffix='index.html',
             error_key=error_key
         )
         # Configure policy
         ## Ask user first?
-        bucket.set_acl('public-read')
+        new_bucket.set_acl('public-read')
         # Copy the keys over
         for key in current_bucket.get_all_keys():
             new_bucket.copy_key(key.name, current_bucket, key.name)
@@ -379,31 +372,33 @@ def sites_rename(arguments):
         if response in set(['y', 'Y', 'Yes', 'yes']):
             decision = True
             break
-        elif response in set(['n', 'N', 'No', 'no'])
+        elif response in set(['n', 'N', 'No', 'no']):
             decision = False
             break
         print('Please enter y/n.')
 
     if decision:
+        from boto.s3.connection import S3Connection
+        conn = S3Connection()
         conn.delete_bucket(b.name)
         # Update the .widely to the new sitename
         with open('.widely', 'w') as f:
-            f.write(sitename)
+            f.write(new_sitename)
 
 
 def push(arguments):
-    bucket = get_current_or_specified_bucket(arguments)
+    bucket = get_current_bucket()
     changesets = generate_changesets(bucket)
     show_changeset(changesets['remote'])
     # Ask for approval
     decision = None
     while True:
         # Verify the deletion of the old sitename
-        response = raw_input('Would you like to make the changes? '.format(b.name))
+        response = raw_input('Would you like to make the changes in {0}? '.format(bucket.name))
         if response in set(['y', 'Y', 'Yes', 'yes']):
             decision = True
             break
-        elif response in set(['n', 'N', 'No', 'no'])
+        elif response in set(['n', 'N', 'No', 'no']):
             decision = False
             break
         print('Please enter y/n.')
@@ -421,11 +416,11 @@ def pull(arguments):
     decision = None
     while True:
         # Verify the deletion of the old sitename
-        response = raw_input('Would you like to make the changes? '.format(b.name))
+        response = raw_input('Would you like to make the changes locally? ')
         if response in set(['y', 'Y', 'Yes', 'yes']):
             decision = True
             break
-        elif response in set(['n', 'N', 'No', 'no'])
+        elif response in set(['n', 'N', 'No', 'no']):
             decision = False
             break
         print('Please enter y/n.')
@@ -447,11 +442,13 @@ def logs(arguments):
     ## Reformat them (in chronological order)
     ## Print them
 
+
 class Change(object):
     Insert = 'Insert'
     Delete = 'Delete'
     Rename = 'Rename'
     Modify = 'Modify'
+
 
 def generate_changesets(bucket):
     """
@@ -476,7 +473,7 @@ def generate_changesets(bucket):
             return hashlib.md5(f.read()).digest()
 
     def get_remote_changeset(remote_hashes, local_hashes):
-        for remote_key, remote_hash in remote_hashes:
+        for remote_key, remote_hash in remote_hashes.iteritems():
             if remote_key in local_hashes:
                 # The key exists in both places
                 if local_hashes[remote_key] != remote_hashes[remote_key]:
@@ -484,7 +481,7 @@ def generate_changesets(bucket):
                     yield remote_key, Change.Modify, remote_key
             else:
                 # The local file does not exist
-                if remote_hash in local_hashes.values()
+                if remote_hash in local_hashes.values():
                     # The file needs to be moved
                     local_keys = get_keys_from_hash(local_hashes, remote_hash)
                     ## This is wrong
@@ -493,7 +490,33 @@ def generate_changesets(bucket):
                 else:
                     # The file is deleted
                     yield None, Change.Delete, remote_key
-        for local_key, local_hash in local_hashes:
+        for local_key, local_hash in local_hashes.iteritems():
+            if local_key not in remote_hashes:
+                ## But what about the set of files from local_keys above?
+                yield local_key, Change.Insert, None
+
+    def get_local_changeset(remote_hashes, local_hashes):
+        """
+        Actually these are remote changes.
+        """
+        for remote_key, remote_hash in remote_hashes.iteritems():
+            if remote_key in local_hashes:
+                # The key exists in both places
+                if local_hashes[remote_key] != remote_hashes[remote_key]:
+                    # The file is modified
+                    yield remote_key, Change.Modify, remote_key
+            else:
+                # The local file does not exist
+                if remote_hash in local_hashes.values():
+                    # The file needs to be moved
+                    local_keys = get_keys_from_hash(local_hashes, remote_hash)
+                    ## This is wrong
+                    yield local_keys, Change.Rename, remote_key
+
+                else:
+                    # The file is deleted
+                    yield None, Change.Delete, remote_key
+        for local_key, local_hash in local_hashes.iteritems():
             if local_key not in remote_hashes:
                 ## But what about the set of files from local_keys above?
                 yield local_key, Change.Insert, None
@@ -505,8 +528,8 @@ def generate_changesets(bucket):
     remote_hashes = {key.name: key.etag for key in remote_keys}
     local_hashes = {key: get_local_key_hash(key) for key in local_keys}
     # Make changesets
-    remote_changeset = get_remote_changeset()
-    local_changeset = get_local_changeset()
+    remote_changeset = get_remote_changeset(remote_hashes, local_hashes)
+    local_changeset = get_local_changeset(local_hashes, remote_hashes)
 
     changesets = {"local": local_changeset,
                   "remote": remote_changeset}
@@ -514,7 +537,12 @@ def generate_changesets(bucket):
 
 
 def show_changeset(changeset):
+    from prettytable import PrettyTable
     print('This would make the following changes:')
+    table = PrettyTable(['Change', 'Local Key', 'Remote Key'])
+    for local_key, change, remote_key in changeset:
+        table.add_row([change, local_key, remote_key])
+    print(table)
 
 
 def run_changeset(changeset):
