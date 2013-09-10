@@ -464,20 +464,24 @@ def generate_changesets(bucket):
         return keys
 
     def setup_ignore():
+        from glob import glob
         with open('.widelyignore', 'r') as f:
-            ignored_filepaths = set(f.read().splitlines())
+            _ignored_filepaths = map(glob, f.read().splitlines())
+            ignored_filepaths = set(item for sublist in _ignored_filepaths for item in sublist)
         def ignore(filepath):
-            return False
+            return filepath in ignored_filepaths
         return ignore
 
     def get_local_keys():
         import os
+        ignore = setup_ignore()
 
         for root, _, files in os.walk(os.curdir):
             for _file in files:
                 path = os.path.join(root, _file)[2:]
-                if path not in ignored_files:
-                    yield os.path.join(root, _file)[2:]
+                if not ignore(path):
+                    yield path
+
     def get_local_key_hash(key):
         with open(key, 'r') as f:
             return hashlib.md5(f.read()).digest()
