@@ -11,3 +11,9 @@
 .idea/workspace.xml
 widely.pyc
 kms.xml
+widely.egg-info/dependency_links.txt
+widely.egg-info/entry_points.txt
+widely.egg-info/PKG-INFO
+widely.egg-info/requires.txt
+widely.egg-info/SOURCES.txt
+widely.egg-info/top_level.txt
