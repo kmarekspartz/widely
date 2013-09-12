@@ -48,16 +48,18 @@ def sizeof_fmt(num):
 
 def version():
     """
-    Description.
+    Description: Displays current versions of Widely and Python
 
-    Usage:
+    Usage: version
     """
     print(__version__)
 
 
 def get_credentials():
     """
-    Returns current access_key and secret_access_key or calls auth_login()
+    Description: returns current access_key and secret_access_key or calls
+    auth_login()
+
     """
     try:
         import boto
@@ -74,9 +76,9 @@ def get_credentials():
 
 def auth_login():
     """
-    Description.
+    Description: Saves user authentication data for AWS S3. This does not verify your credentials.
 
-    Usage:
+    Usage: auth:login
     """
     print('Enter your AWS credentials.')
     aws_access_key_id = raw_input('Access Key ID: ')
@@ -107,9 +109,9 @@ def auth_login():
 
 def auth_logout():
     """
-    Description.
+    Description: Clears any saved authentication data for AWS S3. 
 
-    Usage:
+    Usage: auth:logout
     """
     import boto
     from ConfigParser import NoSectionError
@@ -128,9 +130,9 @@ def auth_logout():
 
 def auth_whoami():
     """
-    Description.
+    Description: Displays user's currently stored access key
 
-    Usage:
+    Usage: auth:whoami
     """
     aws_access_key_id, _ = get_credentials()
     print(aws_access_key_id)
@@ -140,9 +142,8 @@ def get_buckets():
     ## if not logged in, login
 
     """
-    Description.
+    returns a list of all currently accessible buckets
 
-    Usage:
     """
     from boto.s3.connection import S3Connection
 
@@ -155,7 +156,6 @@ class NoSuchBucket(Exception):
     """
     Description.
 
-    Usage:
     """
     pass
 
@@ -164,16 +164,14 @@ class NoWidelyDotfile(Exception):
     """
     Description.
 
-    Usage:
     """
     pass
 
 
 def get_specified_bucket(sitename):
     """
-    Description.
+    returns the bucket given a sitename if the sitename exists.
 
-    Usage:
     """
     from boto.s3.connection import S3Connection
 
@@ -190,9 +188,8 @@ def get_specified_bucket(sitename):
 
 def get_current_bucket():
     """
-    Description.
+    returns the bucket associated with the current widely-enabled directory
 
-    Usage:
     """
     try:
         sitename = open('.widely', 'r').read().split()[0]
@@ -202,8 +199,9 @@ def get_current_bucket():
 
 
 def get_current_or_specified_bucket(arguments):
+    ## this is obviously magic and cannot be described.
     """
-    Description.
+    Description:
 
     Usage:
     """
@@ -252,14 +250,16 @@ def websites_from_buckets(buckets):
 
 def bucket_size(bucket):
     """
-    Return the number of bytes in a bucket.
+    returns the number of bytes in a bucket.
     """
     return sum(map(lambda x: x.size, bucket.get_all_keys()))
 
 
 def sites():
     """
-    Displays sites, which are simply the set of buckets which are web sites.
+    Description: Displays sites, which are simply the set of buckets which are web sites.
+
+    Usage: sites
     """
     buckets = get_buckets()
     websites = websites_from_buckets(buckets)
@@ -270,7 +270,10 @@ def sites():
 
 def sites_info(arguments):
     """
-    Displays detailed information about the current or specified site.
+    Description: Displays detailed information about the current or specified site.
+
+    Usage: sites:info
+           sites:info --site www.celador.mn
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('=== {0}'.format(bucket.name))
@@ -281,7 +284,9 @@ def sites_info(arguments):
 
 def status():
     """
-    Shows the S3 system status.
+    Description: Displays the S3 system status.
+
+    Usage: status
     """
     import feedparser
     from prettytable import PrettyTable
@@ -309,8 +314,17 @@ def status():
 
 
 def local(arguments):
+    ## is there any way to stop this damn thing from running? After spinning a
+    ## server on default port 5000 and killing with keyboard interrupt; I 
+    ## burned that port for a good 30 seconds. Not sure why you would start
+    ## stop and restart several times in a row, but it's not possible without
+    ## changing port numbers.
     """
-    Runs the site in a local server, on the specified port if there is one.
+    Description: Runs the site in a local server, on the specified port if there is one.
+
+    Usage: local
+           local -p 5000
+           local --port 8080
     """
     port = arguments['<PORT>']
     if port:
@@ -337,7 +351,9 @@ def local(arguments):
 
 def _open(arguments):
     """
-    Loads the running specified or current site in the webbrowser.
+    Description: Loads the running specified or current site in the webbrowser.
+
+    Usage: open --site www.celador.mn
     """
     bucket = get_current_or_specified_bucket(arguments)
     url = 'http://' + bucket.get_website_endpoint()
@@ -352,7 +368,9 @@ def _open(arguments):
 
 def domains(arguments):
     """
-    Lists domains for the specified or current site.
+    Description: Displays a list of domains for the specified or current site.
+
+    Usage: domains --site www.celador.mn
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('=== {0} Domain Names'.format(bucket.name))
@@ -361,7 +379,9 @@ def domains(arguments):
 
 def sites_create(arguments):
     """
-    Creates a new site for the specified or current site, or a randomly assigned site name.
+    Descriptino: Creates a new site for the specified or current site, or a randomly assigned site name.
+
+
     """
     # make sure there is no .widely file locally
     import os.path
@@ -402,7 +422,9 @@ def sites_create(arguments):
 
 def sites_copy(arguments):
     """
-    Copies the current site to the new name.
+    Description: Copies the current site to the new name.
+
+    Usage: sites:copy www.selladoor.com
     """
     current_bucket = get_current_bucket()
     new_bucket_name = arguments['<SITENAME>']
@@ -438,7 +460,9 @@ def sites_copy(arguments):
 
 def sites_rename(arguments):
     """
-    Renames the current site to the new name.
+    Description: Renames the current site to the new name
+
+    Usage: sites:rename www.selladoor.com
     """
     sites_copy(arguments)
     new_sitename = arguments['<SITENAME>']
@@ -469,9 +493,9 @@ def sites_rename(arguments):
 
 def push():
     """
-    Description.
+    Description: Pushes local content to AWS S3 services for publication
 
-    Usage:
+    Usage: push
     """
     bucket = get_current_bucket()
     diffs = generate_diffs(bucket)
@@ -495,9 +519,9 @@ def push():
 
 def pull(arguments):
     """
-    Description.
+    Description: Pulls content from AWS S3 services to the local copy.
 
-    Usage:
+    Usage: pull --site www.celador.mn
     """
     sitename = get_current_or_specified_sitename(arguments)
     bucket = get_current_or_specified_bucket(arguments)
@@ -525,7 +549,9 @@ def pull(arguments):
 
 def logs(arguments):
     """
-    Shows access and status logs for the specified or current site.
+    Description: Displays access and status logs for the specified or current site.
+
+    Usage: logs
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('Logs for {0}'.format(bucket.name))
@@ -537,9 +563,7 @@ def logs(arguments):
 
 class Diff(object):
     """
-    Description.
-
-    Usage:
+    Diff class. Diff is used to track changes between local and remote AWS S3.
     """
     NotRemote = 'NotRemote'
     NotLocal = 'NotLocal'
@@ -600,9 +624,7 @@ def generate_diffs(bucket):
 
 def show_diffs(diffs):
     """
-    Description.
-
-    Usage:
+    prints a table of current diffs
     """
     from prettytable import PrettyTable
 
