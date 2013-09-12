@@ -532,6 +532,7 @@ def logs(arguments):
     ## Get the logs
     ## Reformat them (in chronological order)
     ## Print them
+    print('Sorry, this is not yet implemented!')
 
 
 class Diff(object):
