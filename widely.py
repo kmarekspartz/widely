@@ -219,7 +219,7 @@ def get_current_or_specified_sitename(arguments):
     else:
         try:
             with open('.widely', 'r') as f:
-                return f.read()
+                return f.read().split()[0]
         except IOError:
             print(' !\tNo site specified.')
             print(" !\tRun this command from a site folder or specify which "
