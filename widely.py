@@ -39,7 +39,7 @@ def sizeof_fmt(num):
 
     From: http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
     """
-    for x in ['bytes','KB','MB','GB']:
+    for x in ['bytes', 'KB', 'MB', 'GB']:
         if -1024.0 < num < 1024.0:
             return "%3.1f %s" % (num, x)
         num /= 1024.0
@@ -56,6 +56,7 @@ def get_credentials():
     """
     try:
         import boto
+
         aws_access_key_id = boto.config.get('Credentials', 'aws_access_key_id')
         aws_secret_access_key = boto.config.get('Credentials', 'aws_secret_access_key')
         assert aws_access_key_id is not None
@@ -72,6 +73,7 @@ def auth_login():
     aws_secret_access_key = raw_input('Secret Access Key ID: ')
     import boto
     from ConfigParser import DuplicateSectionError
+
     try:
         boto.config.add_section('Credentials')
     except DuplicateSectionError:
@@ -86,6 +88,7 @@ def auth_login():
                     'aws_secret_access_key',
                     aws_secret_access_key)
     import os
+
     boto_config_file = open(os.path.expanduser('~/.boto'), 'w')
     boto.config.write(boto_config_file)
     print('Authentication successful.')
@@ -95,12 +98,14 @@ def auth_login():
 def auth_logout():
     import boto
     from ConfigParser import NoSectionError
+
     try:
         boto.config.remove_option('Credentials', 'aws_access_key_id')
         boto.config.remove_option('Credentials', 'aws_secret_access_key')
     except NoSectionError:
         pass
     import os
+
     boto_config_file = open(os.path.expanduser('~/.boto'), 'w')
     boto.config.write(boto_config_file)
     print('Local credentials cleared.')
@@ -115,6 +120,7 @@ def get_buckets():
     ## if not logged in, login
 
     from boto.s3.connection import S3Connection
+
     conn = S3Connection()
     buckets = conn.get_all_buckets()
     return buckets
@@ -130,8 +136,10 @@ class NoWidelyDotfile(Exception):
 
 def get_specified_bucket(sitename):
     from boto.s3.connection import S3Connection
+
     conn = S3Connection()
     from boto.exception import S3ResponseError
+
     try:
         bucket = conn.get_bucket(sitename)
         bucket.get_website_configuration()
@@ -173,6 +181,7 @@ def get_current_or_specified_sitename(arguments):
 
 def websites_from_buckets(buckets):
     from boto.exception import S3ResponseError
+
     for bucket in buckets:
         try:
             bucket.get_website_configuration()
@@ -209,12 +218,14 @@ def sites_info(arguments):
     print('Size:    {0}'.format(sizeof_fmt(bucket_size(bucket))))
     print('Web URL: {0}'.format(bucket.get_website_endpoint()))
 
+
 def status():
     """
     Shows the S3 system status.
     """
     import feedparser
     from prettytable import PrettyTable
+
     s3_status_rss_feeds = {
         "N. California": "http://status.aws.amazon.com/rss/s3-us-west-1.rss",
         "Oregon": "http://status.aws.amazon.com/rss/s3-us-west-2.rss",
@@ -253,11 +264,13 @@ def local(arguments):
 
     import SimpleHTTPServer
     import SocketServer
+
     Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
     httpd = SocketServer.TCPServer(("", port), Handler)
     url = 'http://0.0.0.0:' + str(port)
     print("serving at " + url)
     import webbrowser
+
     webbrowser.open_new_tab(url)
     httpd.serve_forever()
 
@@ -272,8 +285,10 @@ def _open(arguments):
                                                  # be Python 3
                                                  # compatible.
     import webbrowser
+
     webbrowser.open_new_tab(url)
     print('done')
+
 
 def domains(arguments):
     """
@@ -283,18 +298,21 @@ def domains(arguments):
     print('=== {0} Domain Names'.format(bucket.name))
     print(bucket.get_website_endpoint())
 
+
 def sites_create(arguments):
     """
     Creates a new site for the specified or current site, or a randomly assigned site name.
     """
     # make sure there is no .widely file locally
     import os.path
+
     if os.path.exists('.widely'):
         print('This directory is already a widely site.')
         sys.exit()
     sitename = arguments['<SITENAME>']
     from boto.s3.connection import S3Connection
     from boto.exception import S3CreateError
+
     conn = S3Connection()
     try:
         bucket = conn.create_bucket(sitename)
@@ -330,6 +348,7 @@ def sites_copy(arguments):
     new_bucket_name = arguments['<SITENAME>']
     from boto.s3.connection import S3Connection
     from boto.exception import S3CreateError
+
     conn = S3Connection()
     try:
         # make sure there is no bucket with the name
@@ -356,6 +375,7 @@ def sites_copy(arguments):
         print('This bucket already has keys.')
         sys.exit()
 
+
 def sites_rename(arguments):
     """
     Renames the current site to the new name.
@@ -379,6 +399,7 @@ def sites_rename(arguments):
 
     if decision:
         from boto.s3.connection import S3Connection
+
         conn = S3Connection()
         conn.delete_bucket(b.name)
         # Update the .widely to the new sitename
@@ -442,6 +463,7 @@ def logs(arguments):
     ## Reformat them (in chronological order)
     ## Print them
 
+
 class Diff(object):
     NotRemote = 'NotRemote'
     NotLocal = 'NotLocal'
@@ -502,6 +524,7 @@ def generate_diffs(bucket):
 
 def show_diffs(diffs):
     from prettytable import PrettyTable
+
     print('This would make the following changes:')
     table = PrettyTable(['Diff', 'Key'])
     for diff, key in diffs:
