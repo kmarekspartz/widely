@@ -735,7 +735,6 @@ def main():
         pull(arguments)
     else:
         print('We did not recognize your specified arguments.')
-        print(arguments)  ## To be deleted.
         _help(arguments)
     sys.exit()
 
