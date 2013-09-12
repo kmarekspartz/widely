@@ -37,7 +37,8 @@ def sizeof_fmt(num):
     """
     Formats number of bytes into a human readable form.
 
-    From: http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
+    From:
+    http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
     """
     for x in ['bytes', 'KB', 'MB', 'GB']:
         if -1024.0 < num < 1024.0:
@@ -63,7 +64,8 @@ def get_credentials():
         import boto
 
         aws_access_key_id = boto.config.get('Credentials', 'aws_access_key_id')
-        aws_secret_access_key = boto.config.get('Credentials', 'aws_secret_access_key')
+        aws_secret_access_key = boto.config.get('Credentials',
+                                                'aws_secret_access_key')
         assert aws_access_key_id is not None
         assert aws_secret_access_key is not None
     except AssertionError:
@@ -108,7 +110,8 @@ def auth_login():
 
 def auth_logout():
     """
-    Clears any locally stored authentication data from boto's config for AWS S3.
+    Clears any locally stored authentication data from boto's config
+    for AWS S3.
 
     Usage: widely auth:logout
     """
@@ -219,7 +222,8 @@ def get_current_or_specified_sitename(arguments):
                 return f.read()
         except IOError:
             print(' !\tNo site specified.')
-            print(' !\tRun this command from a site folder or specify which site to use with --site SITENAME.')
+            print(" !\tRun this command from a site folder or specify which "
+                  "site to use with --site SITENAME.")
             sys.exit()
 
 
@@ -345,9 +349,9 @@ def _open(arguments):
     """
     bucket = get_current_or_specified_bucket(arguments)
     url = 'http://' + bucket.get_website_endpoint()
-    print('Opening {0}...'.format(bucket.name)), # This line may not
-                                                 # be Python 3
-                                                 # compatible.
+    print('Opening {0}...'.format(bucket.name)),  # This line may not
+                                                  # be Python 3
+                                                  # compatible.
     import webbrowser
 
     webbrowser.open_new_tab(url)
@@ -387,7 +391,8 @@ def sites_create(arguments):
         bucket = conn.create_bucket(sitename)
         assert bucket.get_all_keys() == []
         # Set bucket configuration
-        error_key = raw_input('Please enter the key of your 404 page (default: 404.html): ')
+        error_key = raw_input(
+            'Please enter the key of your 404 page (default: 404.html): ')
         if not error_key:
             error_key = '404.html'
         bucket.configure_website(
@@ -426,7 +431,8 @@ def sites_copy(arguments):
         new_bucket = conn.create_bucket(new_bucket_name)
         # Make sure the new bucket is empty
         assert new_bucket.get_all_keys() == []
-        error_key = raw_input('Please enter the key of your 404 page (default: 404.html): ')
+        error_key = raw_input(
+            'Please enter the key of your 404 page (default: 404.html): ')
         if not error_key:
             error_key = '404.html'
         new_bucket.configure_website(
@@ -493,7 +499,8 @@ def push():
     decision = None
     while True:
         # Verify the deletion of the old sitename
-        response = raw_input('Would you like to make the changes in {0}? '.format(bucket.name))
+        response = raw_input(
+            'Would you like to make the changes in {0}? '.format(bucket.name))
         if response in set(['y', 'Y', 'Yes', 'yes']):
             decision = True
             break
@@ -508,7 +515,8 @@ def push():
 
 def pull(arguments):
     """
-    Pulls content associated with the specificed sitename from AWS S3 to the current directory.
+    Pulls content associated with the specified sitename from AWS S3
+    to the current directory.
 
     Usage: widely pull --site <SITENAME>
     """
@@ -572,7 +580,10 @@ def generate_diffs(bucket):
 
     with open('.widelyignore', 'r') as f:
         _ignored = map(glob, f.read().splitlines())
-        ignored = set(item for sublist in _ignored for item in sublist).add('.widely').add('.widelyignore')
+        ignored = set(item
+                      for sublist in _ignored
+                      for item in sublist
+        ).add('.widely').add('.widelyignore')
 
     def get_local_keys():
         """
