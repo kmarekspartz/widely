@@ -24,7 +24,8 @@ If your `pip` is `pip-3`:
 pip-2.7 install widely
 ~~~~
 
-`widely` was developed on Python 2.7.5 on Mac OS X, but it should work on any system with Python 2.7.
+`widely` was developed on Python 2.7.5 on Mac OS X, but it should work
+on any system with Python 2.7.
 
 Compatibility with Python 3 and 2.6 is planned.
 
