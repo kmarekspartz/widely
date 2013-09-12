@@ -74,7 +74,8 @@ def get_credentials():
 
 def auth_login():
     """
-    Saves user authentication data for AWS S3 using boto. This does not verify your credentials.
+    Saves user authentication data for AWS S3 using boto. This does not
+    verify your credentials.
 
     Usage: widely auth:login
     """
@@ -181,7 +182,8 @@ def get_specified_bucket(sitename):
 
 def get_current_bucket():
     """
-    Returns the bucket associated with the current directory, if it is a widely directory.
+    Returns the bucket associated with the current directory, if it is
+    a widely directory.
     """
     try:
         sitename = open('.widely', 'r').read().split()[0]
@@ -192,7 +194,8 @@ def get_current_bucket():
 
 def get_current_or_specified_bucket(arguments):
     """
-    Returns a bucket. If one was specified and it exists, it is that one, otherwise, it is the current directory's bucket if it exists.
+    Returns a bucket. If one was specified and it exists, it is that
+    one, otherwise, it is the current directory's bucket if it exists.
     """
     sitename = get_current_or_specified_sitename(arguments)
     try:
@@ -204,7 +207,8 @@ def get_current_or_specified_bucket(arguments):
 
 def get_current_or_specified_sitename(arguments):
     """
-    Returns the bucket name/sitename from the arguments if there was one specified, otherwise from the .widely if it exists.
+    Returns the bucket name/sitename from the arguments if there was
+    one specified, otherwise from the .widely if it exists.
     """
     sitename = arguments['<SITENAME>']
     if sitename:
@@ -221,7 +225,8 @@ def get_current_or_specified_sitename(arguments):
 
 def websites_from_buckets(buckets):
     """
-    Filter a list of buckets into only those which are configured to be a website.
+    Filter a list of buckets into only those which are configured to
+    be a website.
     """
     from boto.exception import S3ResponseError
 
@@ -547,7 +552,8 @@ def logs(arguments):
 
 class Diff(object):
     """
-    Diff class. Diff is used to track changes between current directory and AWS S3.
+    Diff class. Diff is used to track changes between current
+    directory and AWS S3.
     """
     NotRemote = 'NotRemote'
     NotLocal = 'NotLocal'
@@ -570,7 +576,8 @@ def generate_diffs(bucket):
 
     def get_local_keys():
         """
-        Walk the current directory, recursively yielding the paths and hashes for each non-ignored file.
+        Walk the current directory, recursively yielding the paths and
+        hashes for each non-ignored file.
         """
         for root, _, files in os.walk(os.curdir):
             for _file in files:
@@ -627,7 +634,8 @@ def show_diffs(diffs):
 
 def run_diffs(diffs, bucket, local_changes=None):
     """
-    Takes diffs and makes the necessary changes, either pushing or pulling files.
+    Takes diffs and makes the necessary changes, either pushing or
+    pulling files.
     """
     if type(local_changes) is not bool:
         raise ValueError('local_changes must be set to a bool')
