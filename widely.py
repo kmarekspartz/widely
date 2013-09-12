@@ -48,16 +48,16 @@ def sizeof_fmt(num):
 
 def version():
     """
-    Description: Displays current versions of Widely and Python
+    Displays current versions of Widely and Python
 
-    Usage: version
+    Usage: widely version
     """
     print(__version__)
 
 
 def get_credentials():
     """
-    Description: returns current access_key and secret_access_key or calls
+    returns current access_key and secret_access_key or calls
     auth_login()
 
     """
@@ -76,9 +76,9 @@ def get_credentials():
 
 def auth_login():
     """
-    Description: Saves user authentication data for AWS S3. This does not verify your credentials.
+    Saves user authentication data for AWS S3. This does not verify your credentials.
 
-    Usage: auth:login
+    Usage: widely auth:login
     """
     print('Enter your AWS credentials.')
     aws_access_key_id = raw_input('Access Key ID: ')
@@ -109,9 +109,9 @@ def auth_login():
 
 def auth_logout():
     """
-    Description: Clears any saved authentication data for AWS S3. 
+    Clears any saved authentication data for AWS S3. 
 
-    Usage: auth:logout
+    Usage: widely auth:logout
     """
     import boto
     from ConfigParser import NoSectionError
@@ -130,9 +130,9 @@ def auth_logout():
 
 def auth_whoami():
     """
-    Description: Displays user's currently stored access key
+    Displays user's currently stored access key
 
-    Usage: auth:whoami
+    Usage: widely auth:whoami
     """
     aws_access_key_id, _ = get_credentials()
     print(aws_access_key_id)
@@ -257,9 +257,9 @@ def bucket_size(bucket):
 
 def sites():
     """
-    Description: Displays sites, which are simply the set of buckets which are web sites.
+    Displays sites, which are simply the set of buckets which are web sites.
 
-    Usage: sites
+    Usage: widely sites
     """
     buckets = get_buckets()
     websites = websites_from_buckets(buckets)
@@ -270,9 +270,9 @@ def sites():
 
 def sites_info(arguments):
     """
-    Description: Displays detailed information about the current or specified site.
+    Displays detailed information about the current or specified site.
 
-    Usage: sites:info
+    Usage: widely sites:info
            sites:info --site www.celador.mn
     """
     bucket = get_current_or_specified_bucket(arguments)
@@ -284,9 +284,9 @@ def sites_info(arguments):
 
 def status():
     """
-    Description: Displays the S3 system status.
+    Displays the S3 system status.
 
-    Usage: status
+    Usage: widely status
     """
     import feedparser
     from prettytable import PrettyTable
@@ -320,9 +320,9 @@ def local(arguments):
     ## stop and restart several times in a row, but it's not possible without
     ## changing port numbers.
     """
-    Description: Runs the site in a local server, on the specified port if there is one.
+    Runs the site in a local server, on the specified port if there is one.
 
-    Usage: local
+    Usage: widely local
            local -p 5000
            local --port 8080
     """
@@ -351,9 +351,9 @@ def local(arguments):
 
 def _open(arguments):
     """
-    Description: Loads the running specified or current site in the webbrowser.
+    Loads the running specified or current site in the webbrowser.
 
-    Usage: open --site www.celador.mn
+    Usage: widely open --site www.celador.mn
     """
     bucket = get_current_or_specified_bucket(arguments)
     url = 'http://' + bucket.get_website_endpoint()
@@ -368,9 +368,9 @@ def _open(arguments):
 
 def domains(arguments):
     """
-    Description: Displays a list of domains for the specified or current site.
+    Displays a list of domains for the specified or current site.
 
-    Usage: domains --site www.celador.mn
+    Usage: widely domains --site www.celador.mn
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('=== {0} Domain Names'.format(bucket.name))
@@ -422,9 +422,9 @@ def sites_create(arguments):
 
 def sites_copy(arguments):
     """
-    Description: Copies the current site to the new name.
+    Copies the current site to the new name.
 
-    Usage: sites:copy www.selladoor.com
+    Usage: widely sites:copy www.selladoor.com
     """
     current_bucket = get_current_bucket()
     new_bucket_name = arguments['<SITENAME>']
@@ -460,9 +460,9 @@ def sites_copy(arguments):
 
 def sites_rename(arguments):
     """
-    Description: Renames the current site to the new name
+    Renames the current site to the new name
 
-    Usage: sites:rename www.selladoor.com
+    Usage: widely sites:rename www.selladoor.com
     """
     sites_copy(arguments)
     new_sitename = arguments['<SITENAME>']
@@ -493,9 +493,9 @@ def sites_rename(arguments):
 
 def push():
     """
-    Description: Pushes local content to AWS S3 services for publication
+    Pushes local content to AWS S3 services for publication
 
-    Usage: push
+    Usage: widely push
     """
     bucket = get_current_bucket()
     diffs = generate_diffs(bucket)
@@ -519,9 +519,9 @@ def push():
 
 def pull(arguments):
     """
-    Description: Pulls content from AWS S3 services to the local copy.
+    Pulls content from AWS S3 services to the local copy.
 
-    Usage: pull --site www.celador.mn
+    Usage: widely pull --site www.celador.mn
     """
     sitename = get_current_or_specified_sitename(arguments)
     bucket = get_current_or_specified_bucket(arguments)
@@ -549,9 +549,9 @@ def pull(arguments):
 
 def logs(arguments):
     """
-    Description: Displays access and status logs for the specified or current site.
+    Displays access and status logs for the specified or current site.
 
-    Usage: logs
+    Usage: widely logs
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('Logs for {0}'.format(bucket.name))
