@@ -47,6 +47,11 @@ def sizeof_fmt(num):
 
 
 def version():
+    """
+    Description.
+
+    Usage:
+    """
     print(__version__)
 
 
@@ -68,6 +73,11 @@ def get_credentials():
 
 
 def auth_login():
+    """
+    Description.
+
+    Usage:
+    """
     print('Enter your AWS credentials.')
     aws_access_key_id = raw_input('Access Key ID: ')
     aws_secret_access_key = raw_input('Secret Access Key ID: ')
@@ -96,6 +106,11 @@ def auth_login():
 
 
 def auth_logout():
+    """
+    Description.
+
+    Usage:
+    """
     import boto
     from ConfigParser import NoSectionError
 
@@ -112,6 +127,11 @@ def auth_logout():
 
 
 def auth_whoami():
+    """
+    Description.
+
+    Usage:
+    """
     aws_access_key_id, _ = get_credentials()
     print(aws_access_key_id)
 
@@ -119,6 +139,11 @@ def auth_whoami():
 def get_buckets():
     ## if not logged in, login
 
+    """
+    Description.
+
+    Usage:
+    """
     from boto.s3.connection import S3Connection
 
     conn = S3Connection()
@@ -127,14 +152,29 @@ def get_buckets():
 
 
 class NoSuchBucket(Exception):
+    """
+    Description.
+
+    Usage:
+    """
     pass
 
 
 class NoWidelyDotfile(Exception):
+    """
+    Description.
+
+    Usage:
+    """
     pass
 
 
 def get_specified_bucket(sitename):
+    """
+    Description.
+
+    Usage:
+    """
     from boto.s3.connection import S3Connection
 
     conn = S3Connection()
@@ -149,6 +189,11 @@ def get_specified_bucket(sitename):
 
 
 def get_current_bucket():
+    """
+    Description.
+
+    Usage:
+    """
     try:
         sitename = open('.widely', 'r').read().split()[0]
     except IOError:
@@ -157,6 +202,11 @@ def get_current_bucket():
 
 
 def get_current_or_specified_bucket(arguments):
+    """
+    Description.
+
+    Usage:
+    """
     sitename = get_current_or_specified_sitename(arguments)
     try:
         return get_specified_bucket(sitename)
@@ -166,6 +216,11 @@ def get_current_or_specified_bucket(arguments):
 
 
 def get_current_or_specified_sitename(arguments):
+    """
+    Description.
+
+    Usage:
+    """
     sitename = arguments['<SITENAME>']
     if sitename:
         return sitename
@@ -180,6 +235,11 @@ def get_current_or_specified_sitename(arguments):
 
 
 def websites_from_buckets(buckets):
+    """
+    Description.
+
+    Usage:
+    """
     from boto.exception import S3ResponseError
 
     for bucket in buckets:
@@ -408,6 +468,11 @@ def sites_rename(arguments):
 
 
 def push():
+    """
+    Description.
+
+    Usage:
+    """
     bucket = get_current_bucket()
     diffs = generate_diffs(bucket)
     show_diffs(diffs)
@@ -429,6 +494,11 @@ def push():
 
 
 def pull(arguments):
+    """
+    Description.
+
+    Usage:
+    """
     sitename = get_current_or_specified_sitename(arguments)
     bucket = get_current_or_specified_bucket(arguments)
     diffs = generate_diffs(bucket)
@@ -465,6 +535,11 @@ def logs(arguments):
 
 
 class Diff(object):
+    """
+    Description.
+
+    Usage:
+    """
     NotRemote = 'NotRemote'
     NotLocal = 'NotLocal'
     Modified = 'Modified'
@@ -523,6 +598,11 @@ def generate_diffs(bucket):
 
 
 def show_diffs(diffs):
+    """
+    Description.
+
+    Usage:
+    """
     from prettytable import PrettyTable
 
     print('This would make the following changes:')
