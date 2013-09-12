@@ -46,11 +46,11 @@ def sizeof_fmt(num):
     return "%3.1f %s" % (num, 'TB')
 
 
-def version(arguments):
+def version():
     print(__version__)
 
 
-def get_credentials(arguments):
+def get_credentials():
     """
     Returns current access_key and secret_access_key or calls auth_login()
     """
@@ -62,11 +62,11 @@ def get_credentials(arguments):
         assert aws_secret_access_key is not None
     except AssertionError:
         print('No credentials found.')
-        return auth_login(arguments)
+        return auth_login()
     return aws_access_key_id, aws_secret_access_key
 
 
-def auth_login(arguments):
+def auth_login():
     print('Enter your AWS credentials.')
     aws_access_key_id = raw_input('Access Key ID: ')
     aws_secret_access_key = raw_input('Secret Access Key ID: ')
@@ -92,7 +92,7 @@ def auth_login(arguments):
     return aws_access_key_id, aws_secret_access_key
 
 
-def auth_logout(arguments):
+def auth_logout():
     import boto
     from ConfigParser import NoSectionError
     try:
@@ -106,8 +106,8 @@ def auth_logout(arguments):
     print('Local credentials cleared.')
 
 
-def auth_whoami(arguments):
-    aws_access_key_id, _ = get_credentials(arguments)
+def auth_whoami():
+    aws_access_key_id, _ = get_credentials()
     print(aws_access_key_id)
 
 
@@ -188,7 +188,7 @@ def bucket_size(bucket):
     return sum(map(lambda x: x.size, bucket.get_all_keys()))
 
 
-def sites(arguments):
+def sites():
     """
     Displays sites, which are simply the set of buckets which are web sites.
     """
@@ -209,7 +209,7 @@ def sites_info(arguments):
     print('Size:    {0}'.format(sizeof_fmt(bucket_size(bucket))))
     print('Web URL: {0}'.format(bucket.get_website_endpoint()))
 
-def status(arguments):
+def status():
     """
     Shows the S3 system status.
     """
@@ -313,7 +313,7 @@ def sites_create(arguments):
         ## Configure logging
         with open('.widely', 'w') as f:
             f.write(sitename)
-        return push(arguments)
+        return push()
     except S3CreateError:
         print('A site with that name already exists.')
         sys.exit()
@@ -386,7 +386,7 @@ def sites_rename(arguments):
             f.write(new_sitename)
 
 
-def push(arguments):
+def push():
     bucket = get_current_bucket()
     diffs = generate_diffs(bucket)
     show_diffs(diffs)
@@ -436,7 +436,7 @@ def logs(arguments):
     """
     Shows access and status logs for the specified or current site.
     """
-    bucket = get_current_or_specified_bucket()
+    bucket = get_current_or_specified_bucket(arguments)
     print('Logs for {0}'.format(bucket.name))
     ## Get the logs
     ## Reformat them (in chronological order)
@@ -548,15 +548,15 @@ def main():
     """
     arguments = docopt(__doc__, version=__version__, help=False)
     if arguments['version']:
-        version(arguments)
+        version()
     elif arguments['--help'] or arguments['help']:
         _help(arguments)
     elif arguments['auth:login'] or arguments['login']:
-        auth_login(arguments)
+        auth_login()
     elif arguments['auth:logout'] or arguments['logout']:
-        auth_logout(arguments)
+        auth_logout()
     elif arguments['auth:whoami']:
-        auth_whoami(arguments)
+        auth_whoami()
     elif arguments['domains']:
         domains(arguments)
     elif arguments['local']:
@@ -566,7 +566,7 @@ def main():
     elif arguments['open']:
         _open(arguments)
     elif arguments['sites']:
-        sites(arguments)
+        sites()
     elif arguments['sites:create']:
         sites_create(arguments)
     elif arguments['sites:info']:
@@ -574,9 +574,9 @@ def main():
     elif arguments['sites:rename']:
         sites_rename(arguments)
     elif arguments['status']:
-        status(arguments)
+        status()
     elif arguments['push']:
-        push(arguments)
+        push()
     elif arguments['pull']:
         pull(arguments)
     else:
