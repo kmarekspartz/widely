@@ -1,5 +1,5 @@
 # widely
-## Static Site as a Service using Amazon S3
+## Static Site as a Service using AWS S3
 
 ### Usage
 
