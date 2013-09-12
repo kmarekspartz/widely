@@ -34,6 +34,7 @@ pip install widely
 - Use S3's logging
 - Support multipart etags (or add in our own metadata)
 - Don't use MD5
+- Port not being released
 - Serving compressed files from S3
 - Use Amazon CloudFront and Route 53
 - Tests!
