@@ -574,7 +574,7 @@ def generate_diffs(bucket):
 
     def get_local_keys():
         """
-        Walk the current directory, recursively yielding the paths for each non-ignored file.
+        Walk the current directory, recursively yielding the paths and hashes for each non-ignored file.
         """
         for root, _, files in os.walk(os.curdir):
             for _file in files:
@@ -584,6 +584,9 @@ def generate_diffs(bucket):
                         yield path, hashlib.md5(f.read()).digest()
 
     def get_remote_keys():
+        """
+        Gets the list of keys and hashes from the bucket.
+        """
         remote_keys = bucket.get_all_keys()
         for key in remote_keys:
             yield key.name, key.etag
