@@ -388,8 +388,8 @@ def sites_rename(arguments):
 
 def push(arguments):
     bucket = get_current_bucket()
-    changesets = generate_changesets(bucket)
-    show_changeset(changesets['remote'])
+    diffs = generate_diffs(bucket)
+    show_diffs(diffs)
     # Ask for approval
     decision = None
     while True:
@@ -404,14 +404,14 @@ def push(arguments):
         print('Please enter y/n.')
 
     if decision:
-        run_changeset(changesets['remote'])
+        run_diffs(diffs, local_changes=False)
 
 
 def pull(arguments):
     sitename = get_current_or_specified_sitename(arguments)
     bucket = get_current_or_specified_bucket(arguments)
-    changeset = generate_changesets(bucket)
-    show_changeset(changeset['local'])
+    diffs = generate_diffs(bucket)
+    show_diffs(diffs)
     # Ask for approval
     decision = None
     while True:
@@ -426,7 +426,7 @@ def pull(arguments):
         print('Please enter y/n.')
 
     if decision:
-        run_changeset(changesets['local'])
+        run_diffs(diffs, local_changes=True)
         # Set the .widely file (or create it) with the bucket name
         with open('.widely', 'w') as f:
             f.write(sitename)
@@ -442,136 +442,97 @@ def logs(arguments):
     ## Reformat them (in chronological order)
     ## Print them
 
-
-class Change(object):
-    Insert = 'Insert'
-    Delete = 'Delete'
-    Rename = 'Rename'
-    Modify = 'Modify'
+class Diff(object):
+    NotRemote = 'NotRemote'
+    NotLocal = 'NotLocal'
+    Modified = 'Modified'
 
 
-def generate_changesets(bucket):
+def generate_diffs(bucket):
     """
     ??? Use difflib?
-    !!! this uses md5 for hashing, since that is what boto uses
+    !!! this uses md5 for hashing, since that is what boto and s3 uses
     """
+    from glob import glob
     import hashlib
-    def get_keys_from_hash(_dict, _hash):
-        keys = set()
-        for key, _hash_ in _dict:
-            if _hash == _hash_:
-                keys.append(key)
-        return keys
+    import os
 
-    def setup_ignore():
-        from glob import glob
-        with open('.widelyignore', 'r') as f:
-            _ignored_filepaths = map(glob, f.read().splitlines())
-            ignored_filepaths = set(item for sublist in _ignored_filepaths for item in sublist)
-        def ignore(filepath):
-            return filepath in ignored_filepaths
-        return ignore
+    with open('.widelyignore', 'r') as f:
+        _ignored = map(glob, f.read().splitlines())
+        ignored = set(item for sublist in _ignored for item in sublist)
 
     def get_local_keys():
-        import os
-        ignore = setup_ignore()
-
+        """
+        Walk the current directory, recursively yielding the paths for each non-ignored file.
+        """
         for root, _, files in os.walk(os.curdir):
             for _file in files:
                 path = os.path.join(root, _file)[2:]
-                if not ignore(path):
-                    yield path
+                if path not in ignored:
+                    with open(path, 'r') as f:
+                        yield path, hashlib.md5(f.read()).digest()
 
-    def get_local_key_hash(key):
-        with open(key, 'r') as f:
-            return hashlib.md5(f.read()).digest()
+    def get_remote_keys():
+        remote_keys = bucket.get_all_keys()
+        for key in remote_keys:
+            yield key.name, key.etag
 
-    def get_remote_changeset(remote_hashes, local_hashes):
-        for remote_key, remote_hash in remote_hashes.iteritems():
-            if remote_key in local_hashes:
-                # The key exists in both places
-                if local_hashes[remote_key] != remote_hashes[remote_key]:
-                    # The file is modified
-                    yield remote_key, Change.Modify, remote_key
+    local_keys = dict(get_local_keys())
+    remote_keys = dict(get_remote_keys())
+
+    diffs = list()
+
+    for key in local_keys:
+        if key in remote_keys:
+            # The file is in both places
+            if local_keys[key] == remote_keys[key]:
+                continue
             else:
-                # The local file does not exist
-                if remote_hash in local_hashes.values():
-                    # The file needs to be moved
-                    local_keys = get_keys_from_hash(local_hashes, remote_hash)
-                    ## This is wrong
-                    yield local_keys, Change.Rename, remote_key
+                diffs.append((Diff.Modified, key))
+        else:
+            # The file is local but not remote.
+            diffs.append((Diff.NotRemote, key))
+    for key in remote_keys:
+        if key not in remote_keys:
+            # The file is remote but not local.
+            diffs.append((Diff.NotLocal, key))
 
-                else:
-                    # The file is deleted
-                    yield None, Change.Delete, remote_key
-        for local_key, local_hash in local_hashes.iteritems():
-            if local_key not in remote_hashes:
-                ## But what about the set of files from local_keys above?
-                yield local_key, Change.Insert, None
-
-    def get_local_changeset(remote_hashes, local_hashes):
-        """
-        Actually these are remote changes.
-        """
-        for remote_key, remote_hash in remote_hashes.iteritems():
-            if remote_key in local_hashes:
-                # The key exists in both places
-                if local_hashes[remote_key] != remote_hashes[remote_key]:
-                    # The file is modified
-                    yield remote_key, Change.Modify, remote_key
-            else:
-                # The local file does not exist
-                if remote_hash in local_hashes.values():
-                    # The file needs to be moved
-                    local_keys = get_keys_from_hash(local_hashes, remote_hash)
-                    ## This is wrong
-                    yield local_keys, Change.Rename, remote_key
-
-                else:
-                    # The file is deleted
-                    yield None, Change.Delete, remote_key
-        for local_key, local_hash in local_hashes.iteritems():
-            if local_key not in remote_hashes:
-                ## But what about the set of files from local_keys above?
-                yield local_key, Change.Insert, None
-
-    # Get keys
-    remote_keys = bucket.get_all_keys()
-    local_keys = get_local_keys()
-    # Get their hashes
-    remote_hashes = {key.name: key.etag for key in remote_keys}
-    local_hashes = {key: get_local_key_hash(key) for key in local_keys}
-    # Make changesets
-    remote_changeset = get_remote_changeset(remote_hashes, local_hashes)
-    local_changeset = get_local_changeset(local_hashes, remote_hashes)
-
-    changesets = {"local": local_changeset,
-                  "remote": remote_changeset}
-    return changesets
+    return diffs
 
 
-def show_changeset(changeset):
+def show_diffs(diffs):
     from prettytable import PrettyTable
     print('This would make the following changes:')
-    table = PrettyTable(['Change', 'Local Key', 'Remote Key'])
-    for local_key, change, remote_key in changeset:
-        table.add_row([change, local_key, remote_key])
+    table = PrettyTable(['Diff', 'Key'])
+    for diff, key in diffs:
+        table.add_row([diff, key])
     print(table)
 
 
-def run_changeset(changeset):
-    for local_key, change, remote_key in changeset:
-        if change == Change.Insert:
-            pass
-        elif change == Change.Delete:
-            pass
-        elif change == Change.Modify:
-            pass
-        elif change == Change.Rename:
-            pass
+def run_diffs(diffs, local_changes=None):
+    """
+    Takes diffs and makes the necessary changes, either pushing or pulling files.
+    """
+    if type(local_changes) is not bool:
+        raise ValueError('local_changes must be set to a bool')
+    if local_changes:
+        for diff, key in diffs:
+            if diff == Diff.NotRemote:
+                pass  ## Delete local file
+            elif diff == Diff.NotLocal or diff == Diff.Modified:
+                pass  ## Pull remote file
+    else:
+        for diff, key in diffs:
+            if diff == Diff.NotRemote or diff == Diff.Modified:
+                pass  ## Push local file
+            elif diff == Diff.NotLocal:
+                pass  ## Delete remote file
 
 
 def _help(arguments):
+    """
+    Look up the topic in the help_messages dict, and display the message.
+    """
     topic = arguments['<TOPIC>']
     help_messages = {}
     if topic and topic in help_messages:
@@ -620,7 +581,8 @@ def main():
         pull(arguments)
     else:
         print('We did not recognize your specified arguments.')
-        print(arguments)
+        print(arguments)  ## To be deleted.
+        _help(arguments)
     sys.exit()
 
 
