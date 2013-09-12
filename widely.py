@@ -18,7 +18,7 @@ Usage:
   widely pull --site <SITENAME>
   widely open [--site <SITENAME>]
   widely status
-  widely logs
+  widely logs [--site <SITENAME>]
   widely (version | --version)
 
 Options:
@@ -48,7 +48,7 @@ def sizeof_fmt(num):
 
 def version():
     """
-    Displays current versions of Widely and Python
+    Displays current versions of Widely and Python.
 
     Usage: widely version
     """
@@ -107,7 +107,7 @@ def auth_login():
 
 def auth_logout():
     """
-    Clears any saved authentication data from boto's config for AWS S3.
+    Clears any locally stored authentication data from boto's config for AWS S3.
 
     Usage: widely auth:logout
     """
@@ -128,7 +128,7 @@ def auth_logout():
 
 def auth_whoami():
     """
-    Displays user's currently-stored access key.
+    Displays locally stored access key.
 
     Usage: widely auth:whoami
     """
@@ -150,7 +150,7 @@ def get_buckets():
 
 class NoSuchBucket(Exception):
     """
-    Raised when there is no bucket for the site specified.
+    Raised when there is no bucket for the specified sitename.
     """
     pass
 
@@ -164,7 +164,7 @@ class NoWidelyDotfile(Exception):
 
 def get_specified_bucket(sitename):
     """
-    Returns the bucket for the specified if the sitename exists.
+    Returns the bucket for the specified sitename.
     """
     from boto.s3.connection import S3Connection
 
@@ -255,10 +255,10 @@ def sites():
 
 def sites_info(arguments):
     """
-    Displays detailed information about the current or specified site.
+    Displays detailed information about the current or specified sitename.
 
-    Usage: widely sites:info
-           widely sites:info --site www.celador.mn
+    Usage: widely sites:info [--site <SITENAME>]
+
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('=== {0}'.format(bucket.name))
@@ -269,7 +269,7 @@ def sites_info(arguments):
 
 def status():
     """
-    Displays the S3 system status.
+    Displays AWS S3 status.
 
     Usage: widely status
     """
@@ -300,11 +300,9 @@ def status():
 
 def local(arguments):
     """
-    Runs the site in a local server, on the specified port if there is one.
+    Runs the site in a local server on port 8000 or specified port.
 
-    Usage: widely local
-           widely local -p 5000
-           widely local --port 8080
+    Usage: widely local [-p <PORT> | --port <PORT>]
     """
     ## is there any way to stop this damn thing from running? After spinning a
     ## server on default port 5000 and killing with keyboard interrupt; I
@@ -338,8 +336,7 @@ def _open(arguments):
     """
     Loads the running specified or current site in the webbrowser.
 
-    Usage: widely open
-           widely open --site www.celador.mn
+    Usage: widely open [--site <SITENAME>]
     """
     bucket = get_current_or_specified_bucket(arguments)
     url = 'http://' + bucket.get_website_endpoint()
@@ -354,10 +351,9 @@ def _open(arguments):
 
 def domains(arguments):
     """
-    Displays a list of domains for the specified or current site.
+    Displays a list of domains for the current or specified sitename.
 
-    Usage: widely domains
-           widely domains --site www.celador.mn
+    Usage: widely domains [--site <SITENAME>]
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('=== {0} Domain Names'.format(bucket.name))
@@ -368,7 +364,7 @@ def sites_create(arguments):
     """
     Creates a new site for the specified sitename.
 
-    Usage: widely sites:create www.celador.mn
+    Usage: widely sites:create <SITENAME>
     """
     ## Randomly assigned site names.
     # make sure there is no .widely file locally
@@ -410,9 +406,9 @@ def sites_create(arguments):
 
 def sites_copy(arguments):
     """
-    Copies the site in the current directory to the new name.
+    Copies the site in the current directory to the new sitename.
 
-    Usage: widely sites:copy www.celador.mn
+    Usage: widely sites:copy <SITENAME>
     """
     current_bucket = get_current_bucket()
     new_bucket_name = arguments['<SITENAME>']
@@ -448,9 +444,9 @@ def sites_copy(arguments):
 
 def sites_rename(arguments):
     """
-    Renames the current site to the new name.
+    Renames the site in the current directory to the new sitename.
 
-    Usage: widely sites:rename www.celador.mn
+    Usage: widely sites:rename <SITENAME>
     """
     sites_copy(arguments)
     new_sitename = arguments['<SITENAME>']
@@ -481,7 +477,7 @@ def sites_rename(arguments):
 
 def push():
     """
-    Pushes local content to AWS S3 services for publication.
+    Pushes local content to AWS S3 for publication.
 
     Usage: widely push
     """
@@ -507,9 +503,9 @@ def push():
 
 def pull(arguments):
     """
-    Pulls content from AWS S3 services to the local copy.
+    Pulls content associated with the specificed sitename from AWS S3 to the current directory.
 
-    Usage: widely pull --site www.celador.mn
+    Usage: widely pull --site <SITENAME>
     """
     sitename = get_current_or_specified_sitename(arguments)
     bucket = get_current_or_specified_bucket(arguments)
@@ -537,9 +533,9 @@ def pull(arguments):
 
 def logs(arguments):
     """
-    Displays access and status logs for the specified or current site.
+    Displays access and status logs for the current site or specified sitename.
 
-    Usage: widely logs
+    Usage: widely logs [--site <SITENAME>]
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('Logs for {0}'.format(bucket.name))
@@ -551,7 +547,7 @@ def logs(arguments):
 
 class Diff(object):
     """
-    Diff class. Diff is used to track changes between local and remote AWS S3.
+    Diff class. Diff is used to track changes between current directory and AWS S3.
     """
     NotRemote = 'NotRemote'
     NotLocal = 'NotLocal'
@@ -560,7 +556,7 @@ class Diff(object):
 
 def generate_diffs(bucket):
     """
-    Returns a list of diffs or changes between local store and remote AWS S3.
+    Returns a list of diffs or changes between current directory and AWS S3.
     """
     ## Use difflib?
     ## Don't use MD5!
