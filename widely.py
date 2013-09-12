@@ -514,7 +514,7 @@ def push():
         print('Please enter y/n.')
 
     if decision:
-        run_diffs(diffs, local_changes=False)
+        run_diffs(diffs, bucket, local_changes=False)
 
 
 def pull(arguments):
@@ -541,7 +541,7 @@ def pull(arguments):
         print('Please enter y/n.')
 
     if decision:
-        run_diffs(diffs, local_changes=True)
+        run_diffs(diffs, bucket, local_changes=True)
         # Set the .widely file (or create it) with the bucket name
         with open('.widely', 'w') as f:
             f.write(sitename)
@@ -581,7 +581,7 @@ def generate_diffs(bucket):
 
     with open('.widelyignore', 'r') as f:
         _ignored = map(glob, f.read().splitlines())
-        ignored = set(item for sublist in _ignored for item in sublist)
+        ignored = set(item for sublist in _ignored for item in sublist).add('.widely').add('.widelyignore')
 
     def get_local_keys():
         """
@@ -605,6 +605,8 @@ def generate_diffs(bucket):
     diffs = list()
 
     for key in local_keys:
+        if os.path.isdir(key):
+            continue
         if key in remote_keys:
             # The file is in both places
             if local_keys[key] == remote_keys[key]:
@@ -635,24 +637,32 @@ def show_diffs(diffs):
     print(table)
 
 
-def run_diffs(diffs, local_changes=None):
+def run_diffs(diffs, bucket, local_changes=None):
     """
     Takes diffs and makes the necessary changes, either pushing or pulling files.
     """
     if type(local_changes) is not bool:
         raise ValueError('local_changes must be set to a bool')
+    import os
     if local_changes:
         for diff, key in diffs:
             if diff == Diff.NotRemote:
-                pass  ## Delete local file
+                # Delete local file
+                os.remove(key)
             elif diff == Diff.NotLocal or diff == Diff.Modified:
-                pass  ## Pull remote file
+                # Pull remote file
+                with open(key, 'w') as f:
+                    bucket.get_key(key).get_contents_to_file(f)
     else:
+        # Remote changes
         for diff, key in diffs:
             if diff == Diff.NotRemote or diff == Diff.Modified:
-                pass  ## Push local file
+                # Push local file
+                with open(key, 'r') as f:
+                    bucket.new_key(key).send_file(f)
             elif diff == Diff.NotLocal:
-                pass  ## Delete remote file
+                # Delete remote file
+                bucket.get_key(key).delete()
 
 
 def _help(arguments):
