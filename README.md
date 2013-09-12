@@ -26,7 +26,6 @@ pip install widely
 
 ### Issues
 
-- run_diffs
 - docstrings
 - testing
 - PyPI
