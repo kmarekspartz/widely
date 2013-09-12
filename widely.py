@@ -152,12 +152,6 @@ def get_buckets():
     return buckets
 
 
-class NoFileFound(Exception):
-    """
-    Raised when a file in the current directory is not found
-    """
-    pass
-
 class NoSuchBucket(Exception):
     """
     Raised when there is no bucket for the specified sitename.
@@ -584,12 +578,17 @@ def generate_diffs(bucket):
     import hashlib
     import os
 
-    with open('.widelyignore', 'r') as f:
-        _ignored = map(glob, f.read().splitlines())
-        ignored = set(item
-                      for sublist in _ignored
-                      for item in sublist
-        ).add('.widely').add('.widelyignore')
+    ignored = set(['.widely', '.widelyignore'])
+
+    try:
+        with open('.widelyignore', 'r') as f:
+            _ignored = map(glob, f.read().splitlines())
+            specified_ignored = set(item
+                                    for sublist in _ignored
+                                    for item in sublist)
+            ignored = ignored | specified_ignored
+    except IOError:
+        pass
 
     def get_local_keys():
         """
