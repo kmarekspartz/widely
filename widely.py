@@ -554,15 +554,39 @@ def run_diffs(diffs, local_changes=None):
 
 def _help(arguments):
     """
-    Look up the topic in the help_messages dict, and display the message.
+    Look up help messages.
+
+    Usage:
+    widely help <TOPIC>
+
+    where <TOPIC> is one of the following:
     """
+    help_messages = {
+        'version': version.__doc__,
+        'help': _help.__doc__,
+        'auth:login': auth_login.__doc__,
+        'login': auth_login.__doc__,
+        'auth:logout': auth_logout.__doc__,
+        'logout': auth_logout.__doc__,
+        'auth:whoami': auth_whoami.__doc__,
+        'domains': domains.__doc___,
+        'local': local.__doc___,
+        'logs': logs.__doc___,
+        'open': _open.__doc___,
+        'sites': sites.__doc___,
+        'sites:create': sites_create.__doc___,
+        'sites:info': sites_info.__doc___,
+        'sites:rename': sites_rename.__doc___,
+        'status': status.__doc___,
+        'push': push.__doc___,
+        'pull': pull.__doc__
+    }
     topic = arguments['<TOPIC>']
-    help_messages = {}
     if topic and topic in help_messages:
         print('help about ' + topic)
-        print(help_messages[topic])
+        print(help_messages[topic].strip("\n"))
     else:
-        print(__doc__.strip("\n"))
+        print(__doc__.strip("\n") + '\n- '.join(help_messages.keys()))
 
 
 def main():
