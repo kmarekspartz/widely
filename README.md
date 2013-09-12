@@ -38,8 +38,8 @@ Compatibility with Python 3 and 2.6 is planned.
 ### Issues
 
 - testing
-- PyPI
 - website
+- PyPI
 
 - Python 3 and 2.6 compatibility
 - Use S3's logging
