@@ -12,6 +12,13 @@ widely open
 ~~~~
 
 
+### Installation
+
+~~~~
+pip install widely
+~~~~
+
+
 ### Heroku toolbelt-style command line tool
 
 - Built using `docopt`, `prettytable`, `boto`, `feedparser`
@@ -19,14 +26,21 @@ widely open
 
 ### Issues
 
+- run_diffs
+- docstrings
+- testing
+- PyPI
+- website
+
 - Use S3's logging
 - Support multipart etags (or add in our own metadata)
+- Don't use MD5
 - Serving compressed files from S3
 - Use Amazon CloudFront and Route 53
 - Tests!
 
 
-### MIT Licensed
+### MIT License
 
 - <http://www.github.com/zeckalpha/widely>
 
