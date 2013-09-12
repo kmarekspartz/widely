@@ -672,8 +672,8 @@ def run_diffs(diffs, bucket, local_changes=None):
                 # Push local file
                 with open(key, 'r') as f:
                     k = bucket.new_key(key)
-                    k.set_acl('public-read')
-                    k.send_file(f)
+                    k.set_contents_from_file(f)
+                    k.make_public()
             elif diff == Diff.NotLocal:
                 # Delete remote file
                 bucket.get_key(key).delete()
