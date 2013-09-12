@@ -28,10 +28,10 @@ widely open
 
 ### MIT Licensed
 
-[http://www.github.com/zeckalpha/widely]()
+<http://www.github.com/zeckalpha/widely>
 
 
 ### Contact
 
-[mailto:kms@celador.mn]()
-[http://www.celador.mn/widely]()
+<mailto:kms@celador.mn>
+<http://www.celador.mn/widely>
