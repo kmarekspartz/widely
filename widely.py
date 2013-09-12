@@ -3,6 +3,7 @@
 Widely.
 
 Usage:
+  widely (help|-h|--help) [<TOPIC>]
   widely [login | auth:login]
   widely [logout | auth:logout]
   widely auth:whoami
@@ -18,7 +19,6 @@ Usage:
   widely open [--site <SITENAME>]
   widely status
   widely logs
-  widely (help|-h|--help) [<TOPIC>]
   widely (version|--version)
 
 Options:
@@ -640,6 +640,7 @@ def _help(arguments):
     widely help <TOPIC>
 
     where <TOPIC> is one of the following:
+
     """
     help_messages = {
         'version': version.__doc__,
@@ -663,10 +664,13 @@ def _help(arguments):
     }
     topic = arguments['<TOPIC>']
     if topic and topic in help_messages:
-        print('help about ' + topic)
-        print(help_messages[topic].strip("\n"))
+        message = 'help about {0}\n'.format(topic)
+        message += help_messages[topic]
+        if topic == 'help':
+            message += '\n    '.join(help_messages.keys())
+        print(message)
     else:
-        print(__doc__.strip("\n") + '\n- '.join(help_messages.keys()))
+        print(__doc__.strip("\n"))
 
 
 def main():
