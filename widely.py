@@ -152,6 +152,12 @@ def get_buckets():
     return buckets
 
 
+class NoFileFound(Exception):
+    """
+    Raised when a file in the current directory is not found
+    """
+    pass
+
 class NoSuchBucket(Exception):
     """
     Raised when there is no bucket for the specified sitename.
