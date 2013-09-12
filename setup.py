@@ -18,8 +18,7 @@ setup(
         ],
     },
     test_suite='nose.collector',
-    classifiers=["Private :: Do Not Upload",  ## To be removed later.
-                 "Development Status :: 3 - Alpha",
+    classifiers=["Development Status :: 3 - Alpha",
                  "Environment :: Console",
                  "Intended Audience :: Developers",
                  "Intended Audience :: Information Technology",
