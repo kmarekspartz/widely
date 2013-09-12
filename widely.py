@@ -3,7 +3,7 @@
 Widely.
 
 Usage:
-  widely (help|-h|--help) [<TOPIC>]
+  widely (help | -h | --help) [<TOPIC>]
   widely [login | auth:login]
   widely [logout | auth:logout]
   widely auth:whoami
@@ -13,13 +13,13 @@ Usage:
   widely sites:copy <SITENAME>
   widely sites:rename <SITENAME>
   widely domains [--site <SITENAME>]
-  widely local [-p <PORT>|--port <PORT>]
+  widely local [-p <PORT> | --port <PORT>]
   widely push
   widely pull --site <SITENAME>
   widely open [--site <SITENAME>]
   widely status
   widely logs
-  widely (version|--version)
+  widely (version | --version)
 
 Options:
   -p --port
@@ -57,7 +57,7 @@ def version():
 
 def get_credentials():
     """
-    returns current access_key and secret_access_key or calls
+    Returns current access_key and secret_access_key or calls
     auth_login()
 
     """
@@ -109,7 +109,7 @@ def auth_login():
 
 def auth_logout():
     """
-    Clears any saved authentication data for AWS S3. 
+    Clears any saved authentication data for AWS S3.
 
     Usage: widely auth:logout
     """
@@ -130,7 +130,7 @@ def auth_logout():
 
 def auth_whoami():
     """
-    Displays user's currently stored access key
+    Displays currently stored access key for AWS S3
 
     Usage: widely auth:whoami
     """
@@ -201,9 +201,8 @@ def get_current_bucket():
 def get_current_or_specified_bucket(arguments):
     ## this is obviously magic and cannot be described.
     """
-    Description:
+    Description.
 
-    Usage:
     """
     sitename = get_current_or_specified_sitename(arguments)
     try:
@@ -217,7 +216,6 @@ def get_current_or_specified_sitename(arguments):
     """
     Description.
 
-    Usage:
     """
     sitename = arguments['<SITENAME>']
     if sitename:
@@ -236,7 +234,6 @@ def websites_from_buckets(buckets):
     """
     Description.
 
-    Usage:
     """
     from boto.exception import S3ResponseError
 
@@ -273,7 +270,7 @@ def sites_info(arguments):
     Displays detailed information about the current or specified site.
 
     Usage: widely sites:info
-           sites:info --site www.celador.mn
+           sites:info [--site <SITENAME>]
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('=== {0}'.format(bucket.name))
@@ -322,9 +319,7 @@ def local(arguments):
     """
     Runs the site in a local server, on the specified port if there is one.
 
-    Usage: widely local
-           local -p 5000
-           local --port 8080
+    Usage: widely local [-p <PORT> | --port <PORT>]
     """
     port = arguments['<PORT>']
     if port:
@@ -353,7 +348,7 @@ def _open(arguments):
     """
     Loads the running specified or current site in the webbrowser.
 
-    Usage: widely open --site www.celador.mn
+    Usage: widely open [--site <SITENAME>]
     """
     bucket = get_current_or_specified_bucket(arguments)
     url = 'http://' + bucket.get_website_endpoint()
@@ -370,7 +365,7 @@ def domains(arguments):
     """
     Displays a list of domains for the specified or current site.
 
-    Usage: widely domains --site www.celador.mn
+    Usage: widely domains [--site <SITENAME>]
     """
     bucket = get_current_or_specified_bucket(arguments)
     print('=== {0} Domain Names'.format(bucket.name))
@@ -424,7 +419,7 @@ def sites_copy(arguments):
     """
     Copies the current site to the new name.
 
-    Usage: widely sites:copy www.selladoor.com
+    Usage: widely sites:copy <SITENAME>
     """
     current_bucket = get_current_bucket()
     new_bucket_name = arguments['<SITENAME>']
@@ -462,7 +457,7 @@ def sites_rename(arguments):
     """
     Renames the current site to the new name
 
-    Usage: widely sites:rename www.selladoor.com
+    Usage: widely sites:rename <SITENAME>
     """
     sites_copy(arguments)
     new_sitename = arguments['<SITENAME>']
@@ -521,7 +516,7 @@ def pull(arguments):
     """
     Pulls content from AWS S3 services to the local copy.
 
-    Usage: widely pull --site www.celador.mn
+    Usage: widely pull --site <SITENAME>
     """
     sitename = get_current_or_specified_sitename(arguments)
     bucket = get_current_or_specified_bucket(arguments)
@@ -574,6 +569,9 @@ def generate_diffs(bucket):
     """
     ??? Use difflib?
     !!! this uses md5 for hashing, since that is what boto and s3 uses
+
+    Returns a list of diffs or changes between local store and remote AWS S3
+
     """
     from glob import glob
     import hashlib
@@ -624,7 +622,7 @@ def generate_diffs(bucket):
 
 def show_diffs(diffs):
     """
-    prints a table of current diffs
+    Prints a table of current diffs
     """
     from prettytable import PrettyTable
 
