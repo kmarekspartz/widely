@@ -27,8 +27,9 @@ Options:
   -v --version
 """
 
-from docopt import docopt
 import sys
+
+from docopt import docopt
 
 __version__ = 'widely/0.1 python/' + sys.version
 
