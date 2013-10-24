@@ -601,7 +601,7 @@ def generate_diffs(bucket):
                 path = os.path.join(root, _file)[2:]
                 if path not in ignored:
                     with open(path, 'r') as f:
-                        yield path, hashlib.md5(f.read()).digest()
+                        yield path, '"' + hashlib.md5(f.read()).hexdigest() + '"'
 
     def get_remote_keys():
         """
