@@ -635,7 +635,7 @@ def generate_diffs(bucket):
             # The file is local but not remote.
             diffs.append((Diff.NotRemote, key))
     for key in remote_keys:
-        if key not in remote_keys:
+        if key not in local_keys:
             # The file is remote but not local.
             diffs.append((Diff.NotLocal, key))
 
