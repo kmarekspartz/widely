@@ -475,6 +475,7 @@ def sites_rename(arguments):
     Usage: widely sites:rename <SITENAME>
     """
     sites_copy(arguments)
+    new_sitename = arguments['<SITENAME>']
     b = get_current_bucket()
 
     decision = None
