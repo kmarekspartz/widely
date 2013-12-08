@@ -436,36 +436,11 @@ def sites_copy(arguments):
     except AssertionError:
         print('Cannot rename current bucket to current bucket.')
         sys.exit()
-    from boto.s3.connection import S3Connection
-    from boto.exception import S3CreateError
-
-    conn = S3Connection()
-    try:
-        # make sure there is no bucket with the name
-        new_bucket = conn.create_bucket(new_bucket_name)
-        # Make sure the new bucket is empty
-        assert new_bucket.get_all_keys() == []
-        error_key = raw_input(
-            'Please enter the key of your 404 page (default: 404.html): ')
-        if not error_key:
-            error_key = '404.html'
-        new_bucket.configure_website(
-            suffix='index.html',
-            error_key=error_key
-        )
-        # Configure policy
-        ## Ask user first?
-        new_bucket.set_acl('public-read')
-        # Copy the keys over
-        for key in current_bucket.get_all_keys():
-            new_bucket.copy_key(key.name, current_bucket.name, key.name)
-        print('{0} copied to {1}'.format(current_bucket.name, new_bucket_name))
-    except S3CreateError:
-        print('A site with that name already exists')
-        sys.exit()
-    except AssertionError:
-        print('This bucket already has keys.')
-        sys.exit()
+    sites_create(arguments)
+    new_bucket = get_specified_bucket(new_bucket_name)
+    for key in current_bucket.get_all_keys():
+        new_bucket.copy_key(key.name, current_bucket.name, key.name)
+    print('{0} copied to {1}'.format(current_bucket.name, new_bucket_name))
 
 
 def sites_rename(arguments):
