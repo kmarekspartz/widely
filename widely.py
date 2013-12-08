@@ -32,7 +32,7 @@ import sys
 
 from docopt import docopt
 
-__version__ = 0.6
+__version__ = 0.7
 
 version_string = ''.join([
     'widely/',
