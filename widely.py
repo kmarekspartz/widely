@@ -459,7 +459,7 @@ def sites_copy(arguments):
         # Copy the keys over
         for key in current_bucket.get_all_keys():
             new_bucket.copy_key(key.name, current_bucket.name, key.name)
-        print('{0} copied to {1}'.format(current_bucekt.name, new_bucket_name))
+        print('{0} copied to {1}'.format(current_bucket.name, new_bucket_name))
     except S3CreateError:
         print('A site with that name already exists')
         sys.exit()
