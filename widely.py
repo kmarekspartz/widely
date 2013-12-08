@@ -12,6 +12,7 @@ Usage:
   widely sites:create <SITENAME>
   widely sites:copy <SITENAME>
   widely sites:rename <SITENAME>
+  widely sites:delete <SITENAME>
   widely domains [--site <SITENAME>]
   widely local [-p <PORT> | --port <PORT>]
   widely push
@@ -31,7 +32,7 @@ import sys
 
 from docopt import docopt
 
-__version__ = 0.5
+__version__ = 0.6
 
 version_string = ''.join([
     'widely/',
@@ -430,6 +431,11 @@ def sites_copy(arguments):
     """
     current_bucket = get_current_bucket()
     new_bucket_name = arguments['<SITENAME>']
+    try:
+        assert current_bucket.name != new_bucket_name
+    except AssertionError:
+        print('Cannot rename current bucket to current bucket.')
+        sys.exit()
     from boto.s3.connection import S3Connection
     from boto.exception import S3CreateError
 
@@ -452,7 +458,8 @@ def sites_copy(arguments):
         new_bucket.set_acl('public-read')
         # Copy the keys over
         for key in current_bucket.get_all_keys():
-            new_bucket.copy_key(key.name, current_bucket, key.name)
+            new_bucket.copy_key(key.name, current_bucket.name, key.name)
+        print('{0} copied to {1}'.format(current_bucekt.name, new_bucket_name))
     except S3CreateError:
         print('A site with that name already exists')
         sys.exit()
@@ -468,9 +475,7 @@ def sites_rename(arguments):
     Usage: widely sites:rename <SITENAME>
     """
     sites_copy(arguments)
-    new_sitename = arguments['<SITENAME>']
     b = get_current_bucket()
-    print('{0} copied to {1}'.format(b.name, new_sitename))
 
     decision = None
     while True:
@@ -485,14 +490,22 @@ def sites_rename(arguments):
         print('Please enter y/n.')
 
     if decision:
-        from boto.s3.connection import S3Connection
-
-        conn = S3Connection()
-        conn.delete_bucket(b.name)
         # Update the .widely to the new sitename
         with open('.widely', 'w') as f:
             f.write(new_sitename)
+        b.delete_keys(b.get_all_keys())
+        b.delete()
 
+def sites_delete(arguments):
+    """
+    Deletes specified bucket from AWS S3.
+    
+    Usage: widely sites:delete <SITENAME>
+    """
+    b = get_specified_bucket(arguments['<SITENAME>'])
+    b.delete_keys(b.get_all_keys())
+    b.delete()
+    print('{0} is deleted'.format(b.name))
 
 def push():
     """
@@ -718,6 +731,7 @@ def _help(arguments):
         'sites': sites.__doc__,
         'sites:create': sites_create.__doc__,
         'sites:info': sites_info.__doc__,
+        'sites:delete': sites_delete.__doc__,
         'sites:rename': sites_rename.__doc__,
         'status': status.__doc__,
         'push': push.__doc__,
@@ -766,7 +780,9 @@ def main():
     elif arguments['sites:rename']:
         sites_rename(arguments)
     elif arguments['sites:copy']:
-        sites_rename(arguments)
+        sites_copy(arguments)
+    elif arguments['sites:delete']:
+        sites_delete(arguments)
     elif arguments['status']:
         status()
     elif arguments['push']:
