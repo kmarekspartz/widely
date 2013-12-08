@@ -32,7 +32,7 @@ import sys
 
 from docopt import docopt
 
-__version__ = 0.7
+__version__ = 0.8
 
 version_string = ''.join([
     'widely/',
@@ -475,6 +475,7 @@ def sites_rename(arguments):
     Usage: widely sites:rename <SITENAME>
     """
     sites_copy(arguments)
+    new_sitename = arguments['<SITENAME>']
     b = get_current_bucket()
 
     decision = None
