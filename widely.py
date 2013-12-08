@@ -765,6 +765,8 @@ def main():
         sites_info(arguments)
     elif arguments['sites:rename']:
         sites_rename(arguments)
+    elif arguments['sites:copy']:
+        sites_rename(arguments)
     elif arguments['status']:
         status()
     elif arguments['push']:
