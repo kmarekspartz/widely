@@ -55,5 +55,5 @@ Compatibility with Python 3 and 2.6 is planned.
 
 ### Contact
 
-- <mailto:kms@celador.mn>
+- <kms@celador.mn>
 - <http://www.celador.mn/widely>
