@@ -6,7 +6,7 @@ setup(
     name='widely',
     version=str(widely.__version__),
     description='Static Site as a Service using AWS S3',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     author='Kyle Marek-Spartz and Michael Burling',
     author_email='kyle.marek.spartz@gmail.com',
     py_modules=['widely'],
