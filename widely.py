@@ -31,7 +31,14 @@ import sys
 
 from docopt import docopt
 
-__version__ = 'widely/0.1 python/' + sys.version
+__version__ = 0.5
+
+version_string = ''.join([
+    'widely/',
+    str(__version__),
+    ' python/',
+    sys.version
+])
 
 
 def sizeof_fmt(num):
@@ -54,7 +61,7 @@ def version():
 
     Usage: widely version
     """
-    print(__version__)
+    print(version_string)
 
 
 def get_credentials():
@@ -731,7 +738,7 @@ def main():
     """
     Dispatch based on arguments.
     """
-    arguments = docopt(__doc__, version=__version__, help=False)
+    arguments = docopt(__doc__, version=version_string, help=False)
     if arguments['version']:
         version()
     elif arguments['--help'] or arguments['help']:
@@ -757,6 +764,8 @@ def main():
     elif arguments['sites:info']:
         sites_info(arguments)
     elif arguments['sites:rename']:
+        sites_rename(arguments)
+    elif arguments['sites:copy']:
         sites_rename(arguments)
     elif arguments['status']:
         status()
