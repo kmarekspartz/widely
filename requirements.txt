@@ -1,4 +1,4 @@
+boto==2.22.1
 docopt==0.6.1
-boto==2.10.0
 prettytable==0.7.2
 feedparser==5.1.3
