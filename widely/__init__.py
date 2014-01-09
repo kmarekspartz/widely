@@ -20,7 +20,7 @@ Usage:
   widely open [--site <SITENAME>]
   widely status
   widely logs [--site <SITENAME>]
-  widely (version | --version)
+  widely (version | -v | --version)
 
 Options:
   -p --port
