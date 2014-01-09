@@ -1,3 +1,4 @@
+import widely
 from widely.commands.push import push
 from widely.commands.pull import pull
 from widely.commands.status import status
@@ -51,4 +52,4 @@ def _help(arguments):
             message += '\n    '.join(help_messages.keys())
         print(message)
     else:
-        print(__doc__.strip("\n"))
+        print(widely.__doc__.strip("\n"))
