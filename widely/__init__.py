@@ -33,11 +33,11 @@ import sys
 from docopt import docopt
 
 
-__version__ = 0.9
+__version__ = '0.10'
 
 version_string = ''.join([
     'widely/',
-    str(__version__),
+    __version__,
     ' python/',
     sys.version
 ])
