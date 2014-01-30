@@ -4,6 +4,8 @@ widely
 Static Site as a Service using AWS S3
 -------------------------------------
 
+Widely makes deploying static websites easy!
+
 Usage
 ~~~~~
 
