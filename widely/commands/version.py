@@ -1,7 +1,4 @@
-from widely import version_string
-
-
-def version():
+def version(version_string):
     """
     Displays current versions of Widely and Python.
 

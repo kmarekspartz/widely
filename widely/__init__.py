@@ -29,18 +29,9 @@ Options:
 """
 
 import sys
+import pkg_resources
 
 from docopt import docopt
-
-
-__version__ = 0.9
-
-version_string = ''.join([
-    'widely/',
-    str(__version__),
-    ' python/',
-    sys.version
-])
 
 from widely.commands.help import _help
 from widely.commands.push import push
@@ -59,10 +50,18 @@ from widely.commands.open import _open
 def main():
     """
     Dispatch based on arguments.
+
     """
+    version_string = ''.join([
+        'widely/',
+        str(pkg_resources.require('widely')[0].version),
+        ' python/',
+        sys.version
+    ])
+
     arguments = docopt(__doc__, version=version_string, help=False)
     if arguments['version']:
-        version()
+        version(version_string)
     elif arguments['--help'] or arguments['help']:
         _help(arguments)
     elif arguments['auth:login'] or arguments['login']:
