@@ -102,9 +102,11 @@ def run_diffs(diffs, bucket, local_changes=None):
         for diff, key in diffs:
             if diff == Diff.NotRemote:
                 # Delete local file
+                print('removing (local): {0}'.format(key))
                 os.remove(key)
             elif diff == Diff.NotLocal or diff == Diff.Modified:
                 # Pull remote file
+                print('pulling: {0}'.format(key))
                 with open(key, 'w') as f:
                     bucket.get_key(key).get_contents_to_file(f)
     else:
@@ -112,10 +114,12 @@ def run_diffs(diffs, bucket, local_changes=None):
         for diff, key in diffs:
             if diff == Diff.NotRemote or diff == Diff.Modified:
                 # Push local file
+                print('pushing: {0}'.format(key))
                 with open(key, 'r') as f:
                     k = bucket.new_key(key)
                     k.set_contents_from_file(f)
                     k.make_public()
             elif diff == Diff.NotLocal:
                 # Delete remote file
+                print('removing (remote): {0}'.format(key))
                 bucket.get_key(key).delete()
