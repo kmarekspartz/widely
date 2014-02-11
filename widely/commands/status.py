@@ -1,3 +1,7 @@
+"""
+Get the status of various S3 regions.
+"""
+
 import feedparser
 from prettytable import PrettyTable
 

@@ -1,3 +1,7 @@
+"""
+Manage the authorization tokens.
+"""
+
 import os
 from ConfigParser import DuplicateSectionError, NoSectionError
 

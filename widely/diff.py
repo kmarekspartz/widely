@@ -1,3 +1,7 @@
+"""
+Diffs are used to compare and reconcile local and remote data.
+"""
+
 from glob import glob
 import hashlib
 import os

@@ -1,3 +1,7 @@
+"""
+Work with sites, which are abstracted S3 buckets.
+"""
+
 import sys
 import os.path
 

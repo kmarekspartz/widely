@@ -1,3 +1,7 @@
+"""
+Manage and display help messages.
+"""
+
 import widely
 from widely.commands.push import push
 from widely.commands.pull import pull

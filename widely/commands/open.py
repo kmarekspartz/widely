@@ -1,3 +1,7 @@
+"""
+Opens a bucket in the webbrowser.
+"""
+
 import webbrowser
 
 from widely.bucket import get_current_or_specified_bucket

@@ -1,3 +1,7 @@
+"""
+Put the content from the local directory and put it in the remote bucket.
+"""
+
 from widely.bucket import get_current_bucket
 from widely.diff import generate_diffs, show_diffs, run_diffs
 

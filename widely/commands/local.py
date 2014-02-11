@@ -1,3 +1,7 @@
+"""
+Serve this site locally.
+"""
+
 import sys
 import SimpleHTTPServer
 import SocketServer
