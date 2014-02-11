@@ -25,9 +25,9 @@ def status():
     print('=== S3 Status')
     table = PrettyTable(['Region', 'Status'])
     for region_name, rss_url in s3_status_rss_feeds.iteritems():
-        d = feedparser.parse(rss_url)
-        if d.entries:
-            region_status = d.entries[0].title
+        feed = feedparser.parse(rss_url)
+        if feed.entries:
+            region_status = feed.entries[0].title
         else:
             region_status = 'Unknown.'
         table.add_row([region_name, region_status])

@@ -110,12 +110,14 @@ def sites_rename(arguments):
     """
     sites_copy(arguments)
     new_sitename = arguments['<SITENAME>']
-    b = get_current_bucket()
+    bucket = get_current_bucket()
 
     decision = None
     while True:
         # Verify the deletion of the old sitename
-        response = raw_input('Would you like to delete {0}? '.format(b.name))
+        response = raw_input(
+            'Would you like to delete {0}? '.format(bucket.name)
+        )
         if response in set(['y', 'Y', 'Yes', 'yes']):
             decision = True
             break
@@ -128,8 +130,8 @@ def sites_rename(arguments):
         # Update the .widely to the new sitename
         with open('.widely', 'w') as f:
             f.write(new_sitename)
-        b.delete_keys(b.get_all_keys())
-        b.delete()
+        bucket.delete_keys(bucket.get_all_keys())
+        bucket.delete()
 
 
 def sites_delete(arguments):
@@ -138,7 +140,7 @@ def sites_delete(arguments):
 
     Usage: widely sites:delete <SITENAME>
     """
-    b = get_specified_bucket(arguments['<SITENAME>'])
-    b.delete_keys(b.get_all_keys())
-    b.delete()
-    print('{0} is deleted'.format(b.name))
+    bucket = get_specified_bucket(arguments['<SITENAME>'])
+    bucket.delete_keys(bucket.get_all_keys())
+    bucket.delete()
+    print('{0} is deleted'.format(bucket.name))

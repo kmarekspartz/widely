@@ -105,9 +105,9 @@ def sizeof_fmt(num):
 
     From:
     """
-    for x in ['bytes', 'KB', 'MB', 'GB']:
+    for size in ['bytes', 'KB', 'MB', 'GB']:
         if -1024.0 < num < 1024.0:
-            return "%3.1f %s" % (num, x)
+            return "%3.1f %s" % (num, size)
         num /= 1024.0
     return "%3.1f %s" % (num, 'TB')
 
