@@ -1,8 +1,8 @@
-from widely.bucket import get_current_or_specified_bucket,\
 """
 Get the content from the specified bucket and put it in the local directory.
 """
 
+from widely.bucket import get_current_or_specified_bucket, \
     get_current_or_specified_sitename
 from widely.diff import generate_diffs, show_diffs, run_diffs
 
