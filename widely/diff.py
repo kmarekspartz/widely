@@ -28,7 +28,7 @@ def generate_diffs(bucket):
 
     try:
         with open('.widelyignore', 'r') as f:
-            _ignored = map(glob, f.read().splitlines())
+            _ignored = [glob(line) for line in f.read().splitlines()]
             specified_ignored = set(item
                                     for sublist in _ignored
                                     for item in sublist)

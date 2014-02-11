@@ -89,7 +89,7 @@ def bucket_size(bucket):
     """
     Returns the total number of bytes in a bucket.
     """
-    return sum(map(lambda x: x.size, bucket.get_all_keys()))
+    return sum(key.size for key in bucket.get_all_keys())
 
 
 def readable_bucket_size(bucket):
