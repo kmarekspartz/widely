@@ -2,6 +2,7 @@
 Opens a bucket in the webbrowser.
 """
 
+from __future__ import print_function
 import webbrowser
 
 from widely.bucket import get_current_or_specified_bucket
@@ -15,8 +16,6 @@ def _open(arguments):
     """
     bucket = get_current_or_specified_bucket(arguments)
     url = 'http://' + bucket.get_website_endpoint()
-    print('Opening {0}...'.format(bucket.name)), # This line may not
-    # be Python 3
-    # compatible.
+    print('Opening {0}...'.format(bucket.name), end="")
     webbrowser.open_new_tab(url)
     print('done')
