@@ -1,10 +1,8 @@
 from setuptools import setup, find_packages
 
-import widely
-
 setup(
     name='widely',
-    version=str(widely.__version__),
+    version='0.10',
     description='Static Site as a Service using AWS S3',
     long_description=open('README.rst').read(),
     author='Kyle Marek-Spartz and Michael Burling',
