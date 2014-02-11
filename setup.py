@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='widely',
-    version='0.10',
+    version='0.11',
     description='Static Site as a Service using AWS S3',
     long_description=open('README.rst').read(),
     author='Kyle Marek-Spartz and Michael Burling',
