@@ -7,13 +7,20 @@ import SimpleHTTPServer
 import SocketServer
 
 
+class MyTCPServer(SocketServer.TCPServer):
+    """
+    Release the socket when killed.
+    """
+    allow_reuse_address = True
+
+
 def local(arguments):
     """
     Runs the site in a local server on port 8000 or specified port.
 
     Usage: widely local [-p <PORT> | --port <PORT>]
     """
-    ## killing this does not always free the port correctly
+    host = '0.0.0.0'
     port = arguments['<PORT>']
     if port:
         try:
@@ -23,9 +30,10 @@ def local(arguments):
             sys.exit(1)
     else:
         port = 8000
+        
     Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-    httpd = SocketServer.TCPServer(("", port), Handler)
-    url = 'http://0.0.0.0:' + str(port)
+    httpd = MyTCPServer((host, port), Handler)
+    url = 'http://' + host + ':' + str(port)
     print("serving at " + url)
     import webbrowser
 
