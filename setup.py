@@ -1,4 +1,15 @@
 from setuptools import setup, find_packages
+from pip.req import parse_requirements
+
+
+basedir = os.path.dirname(__file__)
+requirements_path = os.path.join(basedir, 'requirements.txt')
+
+# parse_requirements() returns generator of pip.req.InstallRequirement objects
+install_requirements = parse_requirements(requirements_path)
+
+# Convert to setup's list of strings format:
+requirements = [str(ir.req) for ir in install_requirements]
 
 setup(
     name='widely',
@@ -11,7 +22,7 @@ setup(
     url='http://www.celador.mn/widely',
     include_package_data=True,
     packages=find_packages(exclude=['tests*']),
-    install_requires=['boto', 'docopt', 'prettytable', 'feedparser'],
+    install_requires=requirements,
     entry_points={
         'console_scripts': [
             'widely = widely:main',
