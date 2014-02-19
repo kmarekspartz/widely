@@ -44,7 +44,6 @@ Compatibility with Python 3 and 2.6 is planned.
 - Support multipart etags (or add in our own metadata)
 - Don't use MD5
 - Better globs
-- Port not being released quickly in `widely local`
 - Serving compressed files from S3
 - Use Amazon CloudFront and Route 53
 - Tests!
