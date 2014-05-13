@@ -22,8 +22,8 @@ def generate_diffs(bucket):
     """
     Returns a list of diffs or changes between current directory and AWS S3.
     """
-    ## Use difflib?
-    ## Don't use MD5!
+    # TODO: Use difflib?
+    # TODO: Don't use MD5!
     ignored = set(['.widely', '.widelyignore'])
 
     try:

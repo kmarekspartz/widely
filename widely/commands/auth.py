@@ -23,7 +23,7 @@ def auth_login():
     except DuplicateSectionError:
         pass
 
-    ## Check for valid credentials ?
+    # TODO: Check for valid credentials ?
 
     boto.config.set('Credentials',
                     'aws_access_key_id',

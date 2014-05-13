@@ -47,7 +47,7 @@ def sites_create(arguments):
 
     Usage: widely sites:create <SITENAME>
     """
-    ## Randomly assigned site names.
+    # TODO: Randomly assigned site names.
     # make sure there is no .widely file locally
 
     if os.path.exists('.widely'):
@@ -68,9 +68,9 @@ def sites_create(arguments):
             error_key=error_key
         )
         # Configure policy
-        ## Ask user first?
+        # TODO: Ask user first?
         bucket.set_acl('public-read')
-        ## Configure logging
+        # TODO: Configure logging
         with open('.widely', 'w') as f:
             f.write(sitename)
         return push()

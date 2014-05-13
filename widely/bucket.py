@@ -26,7 +26,7 @@ def get_buckets():
     """
     Returns a list of all accessible buckets.
     """
-    ## if not logged in, login
+    # TODO: if not logged in, login
     conn = S3Connection()
     buckets = conn.get_all_buckets()
     return buckets
