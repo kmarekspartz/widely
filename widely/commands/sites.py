@@ -12,6 +12,7 @@ from widely.commands.push import push
 from widely.bucket import get_buckets, websites_from_buckets, \
     get_current_or_specified_bucket, get_current_bucket, \
     get_specified_bucket, readable_bucket_size
+from widely.util import get_y_or_n
 
 
 def sites():
@@ -112,19 +113,9 @@ def sites_rename(arguments):
     new_sitename = arguments['<SITENAME>']
     bucket = get_current_bucket()
 
-    decision = None
-    while True:
-        # Verify the deletion of the old sitename
-        response = raw_input(
-            'Would you like to delete {0}? '.format(bucket.name)
-        )
-        if response in set(['y', 'Y', 'Yes', 'yes']):
-            decision = True
-            break
-        elif response in set(['n', 'N', 'No', 'no']):
-            decision = False
-            break
-        print('Please enter y/n.')
+    decision = get_y_or_n(
+        'Would you like to delete {0}?'.format(bucket.name)
+    )
 
     if decision:
         # Update the .widely to the new sitename
