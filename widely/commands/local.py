@@ -30,7 +30,7 @@ def local(arguments):
             sys.exit(1)
     else:
         port = 8000
-        
+
     Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
     httpd = MyTCPServer((host, port), Handler)
     url = 'http://' + host + ':' + str(port)
