@@ -36,9 +36,7 @@ def get_specified_bucket(sitename):
     """
     Returns the bucket for the specified sitename.
     """
-
     conn = S3Connection()
-
     try:
         bucket = conn.get_bucket(sitename)
         bucket.get_website_configuration()

@@ -24,13 +24,16 @@ def auth_login():
         pass
 
     # TODO: Check for valid credentials ?
-
-    boto.config.set('Credentials',
-                    'aws_access_key_id',
-                    aws_access_key_id)
-    boto.config.set('Credentials',
-                    'aws_secret_access_key',
-                    aws_secret_access_key)
+    boto.config.set(
+        'Credentials',
+        'aws_access_key_id',
+        aws_access_key_id
+    )
+    boto.config.set(
+        'Credentials',
+        'aws_secret_access_key',
+        aws_secret_access_key
+    )
 
     boto_config_file = open(os.path.expanduser('~/.boto'), 'w')
     boto.config.write(boto_config_file)
@@ -71,10 +74,14 @@ def get_credentials():
     login.
     """
     try:
-        aws_access_key_id = boto.config.get('Credentials',
-                                            'aws_access_key_id')
-        aws_secret_access_key = boto.config.get('Credentials',
-                                                'aws_secret_access_key')
+        aws_access_key_id = boto.config.get(
+            'Credentials',
+            'aws_access_key_id'
+        )
+        aws_secret_access_key = boto.config.get(
+            'Credentials',
+            'aws_secret_access_key'
+        )
         assert aws_access_key_id is not None
         assert aws_secret_access_key is not None
     except AssertionError:

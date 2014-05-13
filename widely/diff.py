@@ -29,9 +29,11 @@ def generate_diffs(bucket):
     try:
         with open('.widelyignore', 'r') as f:
             _ignored = [glob(line) for line in f.read().splitlines()]
-            specified_ignored = set(item
-                                    for sublist in _ignored
-                                    for item in sublist)
+            specified_ignored = set(
+                item
+                for sublist in _ignored
+                for item in sublist
+            )
             ignored = ignored | specified_ignored
     except IOError:
         pass
@@ -86,7 +88,6 @@ def show_diffs(diffs):
     """
     Prints a table of diffs.
     """
-
     print('This would make the following changes:')
     table = PrettyTable(['Diff', 'Key'])
     for diff, key in diffs:
