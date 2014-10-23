@@ -5,3 +5,4 @@ widely.egg-info
 dist
 *.pyc
 env
+build
