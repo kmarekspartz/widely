@@ -26,7 +26,8 @@ def get_buckets():
     """
     Returns a list of all accessible buckets.
     """
-    # TODO: if not logged in, login
+    from widely.commands.auth import get_credentials
+    get_credentials()
     conn = S3Connection()
     buckets = conn.get_all_buckets()
     return buckets
@@ -36,6 +37,8 @@ def get_specified_bucket(sitename):
     """
     Returns the bucket for the specified sitename.
     """
+    from widely.commands.auth import get_credentials
+    get_credentials()
     conn = S3Connection()
     try:
         bucket = conn.get_bucket(sitename)

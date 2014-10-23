@@ -54,8 +54,10 @@ def sites_create(arguments):
     if os.path.exists('.widely'):
         print('This directory is already a widely site.')
         sys.exit(1)
-    sitename = arguments['<SITENAME>']
+    from widely.commands.auth import get_credentials
+    get_credentials()
     conn = S3Connection()
+    sitename = arguments['<SITENAME>']
     try:
         bucket = conn.create_bucket(sitename)
         assert bucket.get_all_keys() == []
