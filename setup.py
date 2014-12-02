@@ -15,7 +15,7 @@ requirements = [str(ir.req) for ir in install_requirements]
 
 setup(
     name='widely',
-    version='0.14',
+    version='0.15',
     description='Static Site as a Service using AWS S3',
     long_description=open('README.rst').read(),
     author='Kyle Marek-Spartz and Michael Burling',
