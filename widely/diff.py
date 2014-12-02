@@ -90,7 +90,8 @@ def show_diffs(diffs):
     """
     print('This would make the following changes:')
     table = PrettyTable(['Diff', 'Key'])
-    for diff, key in diffs:
+    sorted_diffs = sorted(diffs, key=lambda (_, snd): snd)
+    for diff, key in sorted_diffs:
         table.add_row([diff, key])
     print(table)
 
