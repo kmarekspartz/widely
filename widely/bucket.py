@@ -7,6 +7,8 @@ import sys
 from boto.s3.connection import S3Connection
 from boto.exception import S3ResponseError
 
+from widely.util import sizeof_fmt
+
 
 class NoSuchBucket(Exception):
     """
@@ -98,19 +100,6 @@ def readable_bucket_size(bucket):
     Returns the number of bytes in a bucket in a human readable form.
     """
     return sizeof_fmt(bucket_size(bucket))
-
-
-def sizeof_fmt(num):
-    """
-    Formats number of bytes into a human readable form.
-
-    From:
-    """
-    for size in ['bytes', 'KB', 'MB', 'GB']:
-        if -1024.0 < num < 1024.0:
-            return "%3.1f %s" % (num, size)
-        num /= 1024.0
-    return "%3.1f %s" % (num, 'TB')
 
 
 def get_current_or_specified_sitename(arguments):
