@@ -1,8 +1,10 @@
-[![Stories in Ready](https://badge.waffle.io/zeckalpha/widely.png?label=ready&title=Ready)](https://waffle.io/zeckalpha/widely)
 # widely
 ## Static Site as a Service using AWS S3
 
 Widely makes deploying static websites easy!
+
+[![Stories in Ready](https://badge.waffle.io/zeckalpha/widely.png?label=ready&title=Ready)](https://waffle.io/zeckalpha/widely)
+[![Build Status](https://travis-ci.org/zeckalpha/widely.svg?branch=master)](https://travis-ci.org/zeckalpha/widely)
 
 ### Usage
 

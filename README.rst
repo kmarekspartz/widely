@@ -6,6 +6,12 @@ Static Site as a Service using AWS S3
 
 Widely makes deploying static websites easy!
 
+.. image:: https://badge.waffle.io/zeckalpha/widely.png?label=ready&title=Ready
+    :target: https://waffle.io/zeckalpha/widely
+
+.. image:: https://travis-ci.org/zeckalpha/widely.svg?branch=master
+    :target: https://travis-ci.org/zeckalpha/widely
+
 Usage
 ~~~~~
 
@@ -62,4 +68,3 @@ Contact
 
 -  kms@celador.mn
 -  http://www.celador.mn/widely
-
