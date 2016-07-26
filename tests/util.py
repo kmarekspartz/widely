@@ -1,6 +1,10 @@
 class StartsWithAssertion(object):
     def assertStartsWith(self, a, b):
-        self.assertTrue(b.startswith(a), '{0} does not start with {1}'.format(b, a))
+        self.assertTrue(
+            b.startswith(a),
+            '{0} does not start with {1}'.format(b, a)
+        )
+
 
 class IOStubs(object):
     def yes_input(self, output):
@@ -17,7 +21,6 @@ class IOStubs(object):
         if self.unknown_inputs_count >= 3:
             return 'y'
         return 'unknown'
-
 
     def log_output(self, *items):
         self.log.append(*items)

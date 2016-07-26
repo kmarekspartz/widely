@@ -8,6 +8,7 @@ from __future__ import print_function
 YES_RESPONSES = set(['y', 'Y', 'Yes', 'yes'])
 NO_RESPONSES = set(['n', 'N', 'No', 'no'])
 
+
 def get_y_or_n(message=None, input=raw_input, output=print):
     """
     Asks the user whether to proceed.
@@ -21,6 +22,7 @@ def get_y_or_n(message=None, input=raw_input, output=print):
         elif response in NO_RESPONSES:
             return False
         output('Please enter y/n.')
+
 
 def sizeof_fmt(num):
     """

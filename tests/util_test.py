@@ -3,6 +3,7 @@ from unittest import TestCase
 from widely.util import NO_RESPONSES, YES_RESPONSES, get_y_or_n, sizeof_fmt
 from util import StartsWithAssertion, IOStubs
 
+
 class UtilTest(TestCase, StartsWithAssertion, IOStubs):
     def setUp(self):
         self.clear_log()
@@ -45,7 +46,11 @@ class UtilTest(TestCase, StartsWithAssertion, IOStubs):
     def test_looping_when_unknown_input(self):
         get_y_or_n(input=self.eventual_yes_input, output=self.log_output)
         self.assertEqual(
-            "Continue? (y/n) \nPlease enter y/n.\nContinue? (y/n) \nPlease enter y/n.\nContinue? (y/n) ",
+            'Continue? (y/n) ' +
+            'Please enter y/n.' +
+            'Continue? (y/n) ' +
+            'Please enter y/n.' +
+            'Continue? (y/n) ',
             self.full_log()
         )
 
