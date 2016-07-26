@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/zeckalpha/widely.png?label=ready&title=Ready)](https://waffle.io/zeckalpha/widely)
 # widely
 ## Static Site as a Service using AWS S3
 
