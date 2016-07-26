@@ -8,7 +8,9 @@ basedir = os.path.dirname(__file__)
 requirements_path = os.path.join(basedir, 'requirements.txt')
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
-install_requirements = parse_requirements(requirements_path)
+install_requirements = parse_requirements(
+    requirements_path, session=False
+)
 
 # Convert to setup's list of strings format:
 requirements = [str(ir.req) for ir in install_requirements]
