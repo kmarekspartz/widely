@@ -1,6 +1,10 @@
 widely
 ======
 
+.. warning::
+   **This project is archived and is no longer maintained.**
+   No further updates or releases will be made. For hosting static sites, we recommend using modern alternatives such as `GitHub Pages <https://pages.github.com/>`__, `Vercel <https://vercel.com/>`__, `Netlify <https://www.netlify.com/>`__, or `AWS Amplify <https://aws.amazon.com/amplify/>`__.
+
 Static Site as a Service using AWS S3
 -------------------------------------
 

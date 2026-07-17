@@ -1,23 +1,19 @@
 import os
 
 from setuptools import setup, find_packages
-from pip.req import parse_requirements
 
 
 basedir = os.path.dirname(__file__)
 requirements_path = os.path.join(basedir, 'requirements.txt')
 
-# parse_requirements() returns generator of pip.req.InstallRequirement objects
-install_requirements = parse_requirements(
-    requirements_path, session=False
-)
-
-# Convert to setup's list of strings format:
-requirements = [str(ir.req) for ir in install_requirements]
+requirements = []
+if os.path.exists(requirements_path):
+    with open(requirements_path) as f:
+        requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
 setup(
     name='widely',
-    version='0.16',
+    version='0.17',
     description='Static Site as a Service using AWS S3',
     long_description=open('README.rst').read(),
     author='Kyle Marek-Spartz and Michael Burling',

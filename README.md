@@ -1,4 +1,9 @@
 # widely
+
+> [!WARNING]
+> **This project is archived and is no longer maintained.**
+> No further updates or releases will be made. For hosting static sites, we recommend using modern alternatives such as [GitHub Pages](https://pages.github.com/), [Vercel](https://vercel.com/), [Netlify](https://www.netlify.com/), or [AWS Amplify](https://aws.amazon.com/amplify/).
+
 ## Static Site as a Service using AWS S3
 
 Widely makes deploying static websites easy!
